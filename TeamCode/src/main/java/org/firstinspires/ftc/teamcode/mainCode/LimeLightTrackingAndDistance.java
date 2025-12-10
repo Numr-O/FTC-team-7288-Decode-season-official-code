@@ -13,8 +13,8 @@ public class LimeLightTrackingAndDistance {
     double TY;
     boolean isValid;
 
-    final double kP = 0.03, kI = 0, kD = 0.002;
-    final double kF = 0.01;
+    final double kP = 0.031, kI = 0.001, kD = 0.001;
+    final double kF = 0.02;
 
     DcMotorEx turretMotor;
     PIDController controller = new PIDController(kP, kI, kD);
@@ -38,6 +38,8 @@ public class LimeLightTrackingAndDistance {
 
     public LimeLightTrackingAndDistance(DcMotorEx turretMotor) {
         this.turretMotor = turretMotor;
+        turretMotor.setTargetPositionTolerance(0);
+        turretMotor.setPositionPIDFCoefficients(15.5);
     }
 
 
@@ -51,7 +53,7 @@ public class LimeLightTrackingAndDistance {
 
     public void trackAprilTagWithPID () {
         controller.setPID(kP,kI,kD);
-        double pid = controller.calculate(-TX,0);
+        double pid = controller.calculate(TX,0);
         double power = pid + kF;
         if (TX < 5 && TX > -5 && isValid) {
             turretMotor.setPower(0);
@@ -61,9 +63,9 @@ public class LimeLightTrackingAndDistance {
 
     }
 
-//   IN PROGRESS TESTING
-    public void trackAprilTagWithEncodersAndIMU () {
-
+    public void trackAprilTagWithPosition() {
+        turretMotor.setTargetPosition(turretMotor.getCurrentPosition() + (int) TX);
+        turretMotor.setPower(1);
     }
 
 

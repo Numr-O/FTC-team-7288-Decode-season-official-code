@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode.mainCode;
 
-import com.arcrobotics.ftclib.hardware.ServoEx;
+import com.arcrobotics.ftclib.hardware.RevIMU;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -13,7 +14,8 @@ public class RobotHardware {
 
 
     public BNO055IMU imu;
-
+    public RevIMU revIMU;
+    //public SparkFunOTOS sparkFunOTOS;
 
     public Limelight3A limelight;
 
@@ -64,7 +66,9 @@ public class RobotHardware {
 
 
         turretMotor = hwmap.get(DcMotorEx.class, "turret");
-        turretMotor.setDirection(DcMotor.Direction.FORWARD);
+        turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
@@ -112,7 +116,9 @@ public class RobotHardware {
 
         limelight = hwmap.get(Limelight3A.class, "LimeLight");
 
+        revIMU = new RevIMU(hwmap);
 
+        //sparkFunOTOS = hwmap.get(SparkFunOTOS.class, "OTOS");
     }
 
 

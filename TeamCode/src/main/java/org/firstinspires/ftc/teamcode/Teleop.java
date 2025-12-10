@@ -142,7 +142,7 @@ public class Teleop extends OpMode {
 
 
         priority = gamepad1.right_trigger > 0.5;
-        indexerShootingAndIntake.ShootingOrIndexingArtifacts(600, gamepad1.right_trigger>0.5);
+        indexerShootingAndIntake.ShootingOrIndexingArtifacts(limeLightTrackingAndDistance.calculateRPMForShooter(), gamepad1.right_trigger>0.5);
 
         boolean leftTrigger = gamepad1.left_trigger > 0.5;
         boolean leftBack = gamepad1.left_bumper;

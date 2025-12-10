@@ -47,10 +47,11 @@ public class PIDTestingTeleop extends OpMode {
 
     @Override
     public void loop() {
-        telemetry.addData("indexer position: ",robotHardware.indexerServo.getPosition());
+        //telemetry.addData("indexer position: ",robotHardware.indexerServo.getPosition());
         LLResult llResult = robotHardware.limelight.getLatestResult();
         double error = llResult.getTx();
 
+        robotHardware.indexerServo.setPosition(0.5);
 
         controller.setPID(kP,kI,kD);
         double pid = controller.calculate(-error, setpoint);

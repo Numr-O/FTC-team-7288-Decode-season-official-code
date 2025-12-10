@@ -35,7 +35,7 @@ public class IndexerShootingAndIntake {
     double INDEXER_SERVO_POS_B = 0.5;
     double INDEXER_SERVO_POS_C = 0.11;
 
-    int TURRET_IDLE_SPEED = 300;
+    int TURRET_IDLE_SPEED = 1100;
 
     public enum ShootingStates {
         SHOOTING_START,
@@ -87,8 +87,6 @@ public class IndexerShootingAndIntake {
     public void ShootingOrIndexingArtifacts(int shooterVelocity, boolean isTriggerPressed) {
         if (isTriggerPressed) {
             indexStates = IndexStates.WAITING_STATE_INDEXER;
-            shooterMotorTop.setVelocity(-shooterVelocity);
-            shooterMotorBottom.setVelocity(shooterVelocity);
             intakeMotor.setPower(1);
             shootBalls(shooterVelocity);
         } else {
@@ -124,6 +122,8 @@ public class IndexerShootingAndIntake {
                     break;
                 }
             case SHOOTING_C:
+                shooterMotorTop.setVelocity(-shooterVelocity);
+                shooterMotorBottom.setVelocity(shooterVelocity);
                 if (areShooterMotorsAtSpeed) {
                     intakeServoRight.setPosition(SERVO_TRANSFER_POS_RIGHT);
                     intakeServoLeft.setPosition(SERVO_TRANSFER_POS_LEFT);
@@ -140,6 +140,8 @@ public class IndexerShootingAndIntake {
                 }
 
             case SHOOTING_B:
+                shooterMotorTop.setVelocity(-shooterVelocity);
+                shooterMotorBottom.setVelocity(shooterVelocity);
                 indexerServo.setPosition(INDEXER_SERVO_POS_B);
                 timer.reset();
                 while (timer.milliseconds() < 300);
@@ -158,6 +160,8 @@ public class IndexerShootingAndIntake {
                     break;
                 }
             case SHOOTING_A:
+                shooterMotorTop.setVelocity(-shooterVelocity);
+                shooterMotorBottom.setVelocity(shooterVelocity);
                 indexerServo.setPosition(INDEXER_SERVO_POS_A);
                 timer.reset();
                 while (timer.milliseconds() < 300);
@@ -208,6 +212,8 @@ public class IndexerShootingAndIntake {
             case INDEX_TO_POS_A:
                 indexerServo.setPosition(INDEXER_SERVO_POS_A);
                 if (doesPosAHaveBall()) {
+                    timer.reset();
+                    while(timer.milliseconds() < 50);
                     artifactAtIndexerPositions[0] = true;
                     indexStates = IndexStates.INDEXER_EMPTY;
                     break;
@@ -218,6 +224,8 @@ public class IndexerShootingAndIntake {
             case INDEX_TO_POS_B:
                 indexerServo.setPosition(INDEXER_SERVO_POS_B);
                 if (doesPosBHaveBall()) {
+                    timer.reset();
+                    while(timer.milliseconds() < 50);
                     artifactAtIndexerPositions[1] = true;
                     indexStates = IndexStates.INDEXER_EMPTY;
                     break;
@@ -228,6 +236,8 @@ public class IndexerShootingAndIntake {
             case INDEX_TO_POS_C:
                 indexerServo.setPosition(INDEXER_SERVO_POS_C);
                 if (doesPosCHaveBall()) {
+                    timer.reset();
+                    while(timer.milliseconds() < 50);
                     artifactAtIndexerPositions[2] = true;
                     indexStates = IndexStates.INDEXER_EMPTY;
                     break;
