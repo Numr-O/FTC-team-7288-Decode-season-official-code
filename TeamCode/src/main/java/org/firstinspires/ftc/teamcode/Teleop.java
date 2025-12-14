@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -49,10 +50,10 @@ public class Teleop extends OpMode {
     RobotHardware robothwde = new RobotHardware();
     double headingOffset;
 
-    double SERVOINTAKEPOSRIGHT = 0.55;
-    double SERVOINTAKEPOSLEFT = 0.47;
-    double SERVOTRAVELPOSRIGHT = 0.73;
-    double SERVOTRAVELPOSLEFT = 0.30;
+    double SERVOINTAKEPOSRIGHT = 0.34;
+    double SERVOINTAKEPOSLEFT = 0.66;
+    double SERVOTRAVELPOSRIGHT = 0.5;
+    double SERVOTRAVELPOSLEFT = 0.5;
     double SERVOTRANSFERPOSRIGHT = 0.83;
     double SERVOTRANSFERPOSLEFT = 0.2;
     double POSA = 0.9;
@@ -61,31 +62,38 @@ public class Teleop extends OpMode {
     boolean priority = false;
     double motorvel;
     String selectedTeam;
+    double initalDistance;
+    boolean started = false;
+
 
     MecanumDriveConsentric mecanumDriveConsentric;
     LimeLightTrackingAndDistance limeLightTrackingAndDistance;
     IndexerShootingAndIntake indexerShootingAndIntake;
     TelemetryManager panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-
+    GYROCorrection gyroCorrection;
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
+
         robothwde.init(hardwareMap);
 
         mecanumDriveConsentric = new MecanumDriveConsentric(robothwde.frontLeftMotor, robothwde.backLeftMotor, robothwde.frontRightMotor, robothwde.backRightMotor, robothwde.imu);
 
         limeLightTrackingAndDistance = new LimeLightTrackingAndDistance(robothwde.turretMotor);
 
-        Object[] hardwareList = {robothwde.indexerServo,robothwde.intakeServoLeft,robothwde.intakeServoRight,robothwde.shooterMotorTop,robothwde.shooterMotorBottom,robothwde.intakeMotor,robothwde.colorPosA,robothwde.colorPosB,robothwde.colorPosC};
+        Object[] hardwareList = {robothwde.indexerServo,robothwde.intakeServoLeft,robothwde.intakeServoRight,robothwde.shooterMotorTop,robothwde.shooterMotorBottom,robothwde.intakeMotor,robothwde.colorPosA,robothwde.colorPosB,robothwde.colorPosC,robothwde.ledLight};
         indexerShootingAndIntake = new IndexerShootingAndIntake(hardwareList);
 
+        gyroCorrection = new GYROCorrection(robothwde.sparkFunOTOS, robothwde.turretMotor);
 
         robothwde.limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
         //This is the setup for the limelight A3 camera's pipeline
-        robothwde.limelight.pipelineSwitch(0);
 
+
+        robothwde.sparkFunOTOS.calibrateImu();
+        robothwde.sparkFunOTOS.resetTracking();
     }
 
         /*
@@ -116,27 +124,38 @@ public class Teleop extends OpMode {
      */
     @Override
     public void loop() {
+        double imuAngle = robothwde.imu.getAngularOrientation().firstAngle;
+
+
         if (gamepad1.start) {
-            headingOffset = -robothwde.imu.getAngularOrientation().firstAngle;
+            headingOffset = -robothwde.imu.getAngularOrientation().firstAngle;;
         }
 
         LLResult llResult = robothwde.limelight.getLatestResult();
         limeLightTrackingAndDistance.setLLResult(llResult);
 
+        gyroCorrection.setLLResultForGYRO(llResult);
+
+        if (!started) {
+            initalDistance = limeLightTrackingAndDistance.distanceToTarget();
+            started = true;
+        }
+
+
+
         double distanceOne = limeLightTrackingAndDistance.distanceToTarget();
         double distanceTwo = limeLightTrackingAndDistance.distanceToTargetTwo();
-        limeLightTrackingAndDistance.trackAprilTagWithPID();
 
-        mecanumDriveConsentric.controlerDrive(-gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x,headingOffset);
+        mecanumDriveConsentric.controlerDrive(-gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x,imuAngle,headingOffset);
 
+        gyroCorrection.trackWithGYRO(initalDistance, robothwde.imu.getAngularOrientation().firstAngle);
 
+        telemetry.addData("OTOS X: ", robothwde.sparkFunOTOS.getPosition().x);
+        telemetry.addData("OTOS Y: ", robothwde.sparkFunOTOS.getPosition().y);
+        telemetry.addData("True Error: ", gyroCorrection.trueErrorCorrection);
+        telemetry.addData("Rotation Error: ", gyroCorrection.rotationError);
+        telemetry.addData("Translation Error: ", gyroCorrection.translationErrorAngle);
 
-        telemetry.addData("TX", llResult.getTx());
-        telemetry.addData("TY", llResult.getTy());
-        telemetry.addData("TA", llResult.getTa());
-        telemetry.addData("Distance One: ", distanceOne);
-        telemetry.addData("Distance Two: ", distanceTwo);
-        telemetry.addData("test", robothwde.colorPosA.getDistance(DistanceUnit.MM));
 
 
 
@@ -148,11 +167,11 @@ public class Teleop extends OpMode {
         boolean leftBack = gamepad1.left_bumper;
 
         if (leftTrigger && !leftBack && !priority) {
-            robothwde.intakeMotor.setPower(1);
+            robothwde.intakeMotor.setPower(-1);
             robothwde.intakeServoRight.setPosition(SERVOINTAKEPOSRIGHT);
             robothwde.intakeServoLeft.setPosition(SERVOINTAKEPOSLEFT);
         } else if (!leftTrigger && leftBack && !priority) {
-            robothwde.intakeMotor.setPower(-1);
+            robothwde.intakeMotor.setPower(1);
             robothwde.intakeServoRight.setPosition(SERVOINTAKEPOSRIGHT);
             robothwde.intakeServoLeft.setPosition(SERVOINTAKEPOSLEFT);
         } else if (!leftTrigger && !leftBack  && !priority) {
@@ -161,17 +180,10 @@ public class Teleop extends OpMode {
             robothwde.intakeServoLeft.setPosition(SERVOTRAVELPOSLEFT);
         }
 
+
+
+
         telemetry.addData("RPM", limeLightTrackingAndDistance.calculateRPMForShooter());
-
-//        if (gamepad1.right_trigger > 0.5) {
-//            robothwde.shooterMotorTop.setVelocity(-limeLightTrackingAndDistance.calculateRPMForShooter());
-//            robothwde.shooterMotorBottom.setVelocity(limeLightTrackingAndDistance.calculateRPMForShooter());
-//        } else {
-//            robothwde.shooterMotorTop.setVelocity(0);
-//            robothwde.shooterMotorBottom.setVelocity(0);
-//        }
-
-
         telemetry.addData("top shooter velocity", robothwde.shooterMotorTop.getVelocity());
         telemetry.addData("bottom shooter velocity", robothwde.shooterMotorBottom.getVelocity());
         telemetry.addData("Are Shooter Motors At Speed: ", indexerShootingAndIntake.areShooterMotorsAtSpeed);

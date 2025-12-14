@@ -13,8 +13,8 @@ public class MecanumDriveConsentric {
     public DcMotor backLeftMotor;
     public DcMotor frontRightMotor;
     public DcMotor backRightMotor;
-    public BNO055IMU imu;
 
+    public BNO055IMU imu;
 
 
     public MecanumDriveConsentric(DcMotor frontLeftMotor, DcMotor backLeftMotor, DcMotor frontRightMotor, DcMotor backRightMotor, BNO055IMU imu) {
@@ -28,7 +28,7 @@ public class MecanumDriveConsentric {
 
 
 
-    public void controlerDrive(double Y, double X, double RX, double headingOffset) {
+    public void controlerDrive(double Y, double X, double RX, double imuAngle,double headingOffset) {
 
 
         botHeading = -imu.getAngularOrientation().firstAngle - headingOffset;

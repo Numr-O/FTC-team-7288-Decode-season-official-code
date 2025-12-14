@@ -3,21 +3,28 @@ package org.firstinspires.ftc.teamcode.mainCode;
 import com.arcrobotics.ftclib.hardware.RevIMU;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Light;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class RobotHardware {
 
 
     public BNO055IMU imu;
     public RevIMU revIMU;
-    //public SparkFunOTOS sparkFunOTOS;
+    public SparkFunOTOS sparkFunOTOS;
 
     public Limelight3A limelight;
+
+    public Servo ledLight;
 
 
     public DcMotor frontLeftMotor;
@@ -41,7 +48,7 @@ public class RobotHardware {
     public ColorRangeSensor colorPosB; //Indexer Servo 0.5
     public ColorRangeSensor colorPosC; //Indexer Servo 0.1
 
-
+    public SparkFunOTOS.Pose2D pose2D;
 
     HardwareMap hwmap;
 
@@ -70,6 +77,7 @@ public class RobotHardware {
         turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turretMotor.setPositionPIDFCoefficients(16);
 
 
         intakeMotor = hwmap.get(DcMotor.class, "test");
@@ -84,7 +92,7 @@ public class RobotHardware {
         indexerServo = hwmap.get(Servo.class, "indexer");
 
 
-
+        ledLight = hwmap.get(Servo.class, "ledLight");
 
 
         shooterMotorTop = hwmap.get(DcMotorEx.class, "smTop");
@@ -116,9 +124,14 @@ public class RobotHardware {
 
         limelight = hwmap.get(Limelight3A.class, "LimeLight");
 
-        revIMU = new RevIMU(hwmap);
 
-        //sparkFunOTOS = hwmap.get(SparkFunOTOS.class, "OTOS");
+        pose2D = new SparkFunOTOS.Pose2D(0,0,-90);
+        sparkFunOTOS = hwmap.get(SparkFunOTOS.class, "otos");
+        sparkFunOTOS.setOffset(pose2D);
+        sparkFunOTOS.setAngularScalar(0.997);
+        sparkFunOTOS.setLinearUnit(DistanceUnit.CM);
+        sparkFunOTOS.setLinearScalar(1.006);
+
     }
 
 
