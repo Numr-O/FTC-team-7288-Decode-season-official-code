@@ -1,18 +1,16 @@
-package org.firstinspires.ftc.teamcode.mainCode;
+package org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes;
 
 import com.arcrobotics.ftclib.hardware.RevIMU;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Light;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class RobotHardware {
@@ -73,15 +71,12 @@ public class RobotHardware {
 
 
         turretMotor = hwmap.get(DcMotorEx.class, "turret");
-        turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        turretMotor.setPositionPIDFCoefficients(16);
 
 
         intakeMotor = hwmap.get(DcMotor.class, "test");
-        intakeMotor.setDirection(DcMotor.Direction.FORWARD);
+        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
@@ -92,8 +87,7 @@ public class RobotHardware {
         indexerServo = hwmap.get(Servo.class, "indexer");
 
 
-        ledLight = hwmap.get(Servo.class, "ledLight");
-
+        ledLight = hwmap.get(Servo.class, "led");
 
         shooterMotorTop = hwmap.get(DcMotorEx.class, "smTop");
         shooterMotorBottom = hwmap.get(DcMotorEx.class, "smBottom");
@@ -127,7 +121,7 @@ public class RobotHardware {
 
         pose2D = new SparkFunOTOS.Pose2D(0,0,-90);
         sparkFunOTOS = hwmap.get(SparkFunOTOS.class, "otos");
-        sparkFunOTOS.setOffset(pose2D);
+//        sparkFunOTOS.setOffset(pose2D);
         sparkFunOTOS.setAngularScalar(0.997);
         sparkFunOTOS.setLinearUnit(DistanceUnit.CM);
         sparkFunOTOS.setLinearScalar(1.006);

@@ -27,24 +27,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Teleop_Opmodes;
 
-import com.arcrobotics.ftclib.drivebase.MecanumDrive;
+import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.mainCode.IndexerShootingAndIntake;
-import org.firstinspires.ftc.teamcode.mainCode.LimeLightTrackingAndDistance;
-import org.firstinspires.ftc.teamcode.mainCode.MecanumDriveConsentric;
-import org.firstinspires.ftc.teamcode.mainCode.RobotHardware;
+import org.firstinspires.ftc.teamcode.OLD_CLASSES.GYROCorrection;
+import org.firstinspires.ftc.teamcode.OLD_CLASSES.IndexerShootingAndIntake;
+import org.firstinspires.ftc.teamcode.OLD_CLASSES.LimeLightTrackingAndDistance;
+import org.firstinspires.ftc.teamcode.OLD_CLASSES.MecanumDriveConsentric;
+import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.RobotHardware;
 
 
-@TeleOp
+@Configurable
 public class Teleop extends OpMode {
 
     RobotHardware robothwde = new RobotHardware();
@@ -64,6 +63,8 @@ public class Teleop extends OpMode {
     String selectedTeam;
     double initalDistance;
     boolean started = false;
+
+    static double kP = 0, kI = 0, kD = 0, kF = 0;
 
 
     MecanumDriveConsentric mecanumDriveConsentric;
@@ -90,10 +91,15 @@ public class Teleop extends OpMode {
 
         robothwde.limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
         //This is the setup for the limelight A3 camera's pipeline
-
+        robothwde.ledLight.setPosition(1);
 
         robothwde.sparkFunOTOS.calibrateImu();
         robothwde.sparkFunOTOS.resetTracking();
+
+        SparkFunOTOS.Pose2D offestPose = new SparkFunOTOS.Pose2D(0,0,-90);
+        robothwde.sparkFunOTOS.setOffset(offestPose);
+
+
     }
 
         /*
@@ -104,9 +110,11 @@ public class Teleop extends OpMode {
         if (gamepad1.a) {
             robothwde.limelight.pipelineSwitch(0);
             selectedTeam = "Red";
+            robothwde.ledLight.setPosition(0.280);
         } else if (gamepad1.b) {
             robothwde.limelight.pipelineSwitch(1);
             selectedTeam = "Blue";
+            robothwde.ledLight.setPosition(0.666);
         }
         telemetry.addData("Selected Team: ", selectedTeam);
     }
@@ -124,6 +132,8 @@ public class Teleop extends OpMode {
      */
     @Override
     public void loop() {
+        gyroCorrection.updatePIDF(kP,kI,kD,kF);
+
         double imuAngle = robothwde.imu.getAngularOrientation().firstAngle;
 
 
@@ -143,12 +153,11 @@ public class Teleop extends OpMode {
 
 
 
-        double distanceOne = limeLightTrackingAndDistance.distanceToTarget();
-        double distanceTwo = limeLightTrackingAndDistance.distanceToTargetTwo();
-
         mecanumDriveConsentric.controlerDrive(-gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x,imuAngle,headingOffset);
 
-        gyroCorrection.trackWithGYRO(initalDistance, robothwde.imu.getAngularOrientation().firstAngle);
+        gyroCorrection.trackWithGYRO(initalDistance, imuAngle, robothwde.turretMotor.getCurrentPosition());
+
+
 
         telemetry.addData("OTOS X: ", robothwde.sparkFunOTOS.getPosition().x);
         telemetry.addData("OTOS Y: ", robothwde.sparkFunOTOS.getPosition().y);
@@ -182,12 +191,14 @@ public class Teleop extends OpMode {
 
 
 
+        panelsTelemetry.addData("Target Turret Position: ", gyroCorrection.targetMotorPosition);
+        panelsTelemetry.addData("CUrrent Turret Position: ", robothwde.turretMotor.getCurrentPosition());
+        panelsTelemetry.update();
 
         telemetry.addData("RPM", limeLightTrackingAndDistance.calculateRPMForShooter());
         telemetry.addData("top shooter velocity", robothwde.shooterMotorTop.getVelocity());
         telemetry.addData("bottom shooter velocity", robothwde.shooterMotorBottom.getVelocity());
         telemetry.addData("Are Shooter Motors At Speed: ", indexerShootingAndIntake.areShooterMotorsAtSpeed);
-        telemetry.addData("Shooter Case", indexerShootingAndIntake.getShooterState());
         telemetry.addData("Indexing case: ", indexerShootingAndIntake.getIndexingState());
         telemetry.addData("Array", indexerShootingAndIntake.artifactAtIndexerPositions[0] + " " + indexerShootingAndIntake.artifactAtIndexerPositions[1] + " " + indexerShootingAndIntake.artifactAtIndexerPositions[2]);
 

@@ -1,24 +1,23 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Teleop_Opmodes.Testing_Teleops;
 
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.mainCode.RobotHardware;
+import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.RobotHardware;
 
 @Configurable
-@TeleOp
 public class PIDTestingTeleop extends OpMode {
     TelemetryManager panelsTelemetry;
     RobotHardware robotHardware = new RobotHardware();
     public PIDController controller;
     public static double kP = 0.0305,kI = 0.005,kD = 0.001;
     public static double kF = 0.03;
+
+
+
 
     public double intakeServoLeft = 0.48, intakeServoRight = 0.55;
     public double travelLeft = 0.37;
@@ -47,24 +46,30 @@ public class PIDTestingTeleop extends OpMode {
 
     @Override
     public void loop() {
-        //telemetry.addData("indexer position: ",robotHardware.indexerServo.getPosition());
-        LLResult llResult = robotHardware.limelight.getLatestResult();
-        double error = llResult.getTx();
+        robotHardware.shooterMotorBottom.setVelocity(1000);
+        robotHardware.shooterMotorTop.setVelocity(-1000 );
 
-        robotHardware.indexerServo.setPosition(0.5);
 
-        controller.setPID(kP,kI,kD);
-        double pid = controller.calculate(-error, setpoint);
-        double ff = kF;
 
-        double power = pid + ff;
-        //robotHardware.turretMotor.setPower(power);
+        robotHardware.intakeMotor.setPower(-1);
 
-        panelsTelemetry.addData("Error", error);
-        panelsTelemetry.addData("Setpoint", setpoint);
-        telemetry.addData("Error", error);
-        telemetry.addData("Power",power);
-        panelsTelemetry.addData("Power", power);
-        panelsTelemetry.update();
+        if (gamepad1.aWasReleased()) {
+            robotHardware.indexerServo.setPosition(0.95);
+        } else if (gamepad1.bWasReleased()) {
+            robotHardware.indexerServo.setPosition(0.5);
+        } else if (gamepad1.xWasReleased()) {
+            robotHardware.indexerServo.setPosition(0.11);
+        }
+
+        if (gamepad1.right_trigger > 0.5) {
+            robotHardware.intakeServoLeft.setPosition(0.4);
+            robotHardware.intakeServoRight.setPosition(0.63);
+        } else {
+            robotHardware.intakeServoLeft.setPosition(0.66);
+            robotHardware.intakeServoRight.setPosition(0.34);
+
+        }
+
+
     }
 }

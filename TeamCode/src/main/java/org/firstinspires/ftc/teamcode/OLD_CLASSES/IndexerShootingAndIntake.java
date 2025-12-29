@@ -1,7 +1,5 @@
-package org.firstinspires.ftc.teamcode.mainCode;
+package org.firstinspires.ftc.teamcode.OLD_CLASSES;
 
-
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -39,20 +37,23 @@ public class IndexerShootingAndIntake {
     double INDEXER_SERVO_POS_A = 0.9;
     double INDEXER_SERVO_POS_B = 0.5;
     double INDEXER_SERVO_POS_C = 0.11;
+    double INDEXER_SERVO_POS_A_EXTRA = 0.95;
+    double INDEXER_SERVO_POS_C_EXTRA = 0.05;
 
-    int TURRET_IDLE_SPEED = 1100;
+
+    double TURRET_IDLE_SPEED = 1000;
+    double TURRET_VAL = TURRET_IDLE_SPEED;
 
     public int test = 1;
 
     public enum ShootingStates {
-        SHOOTING_START,
         SHOOTING_A,
         SHOOTING_B,
         SHOOTING_C,
-        INDEXER_EMPTY,
+        INDEXER_INTERMEDIATE,
         WAITING_STATE_SHOOTER
     }
-    public ShootingStates shootingState = ShootingStates.INDEXER_EMPTY;
+    public ShootingStates shootingState = ShootingStates.INDEXER_INTERMEDIATE;
 
     public enum IndexStates {
         INDEXER_EMPTY,
@@ -69,6 +70,10 @@ public class IndexerShootingAndIntake {
     public boolean isInState = false;
 
 
+    /*
+    /  --------------------------- MAIN CODE BELLOW ----------------------------------
+    */
+
     public IndexerShootingAndIntake(Object[] harwareList) {
         this.indexerServo = (Servo) harwareList[0];
         this.intakeServoLeft = (Servo) harwareList[1];
@@ -83,41 +88,54 @@ public class IndexerShootingAndIntake {
     }
 
     private boolean doesPosAHaveBall () {
-        return colorPosA.getDistance(DistanceUnit.MM) < 50;
+        return colorPosA.getDistance(DistanceUnit.MM) < 50 && colorPosA.getLightDetected() > 0.2;
     }
     private boolean doesPosBHaveBall () {
-        return colorPosB.getDistance(DistanceUnit.MM) < 50;
+        return colorPosB.getDistance(DistanceUnit.MM) < 50 && colorPosB.getLightDetected() > 0.2;
     }
     private boolean doesPosCHaveBall () {
-        return colorPosC.getDistance(DistanceUnit.MM) < 50;
+        return colorPosC.getDistance(DistanceUnit.MM) < 50 && colorPosC.getLightDetected() > 0.2;
     }
+
 
 
     public void ShootingOrIndexingArtifacts(int shooterVelocity, boolean isTriggerPressed) {
+
+
         if (isTriggerPressed) {
+            TURRET_VAL = shooterVelocity;
             indexStates = IndexStates.WAITING_STATE_INDEXER;
             intakeMotor.setPower(-1);
-            shootBalls(shooterVelocity);
+            intakeServoRight.setPosition(SERVO_TRANSFER_POS_RIGHT);
+            intakeServoLeft.setPosition(SERVO_TRANSFER_POS_LEFT);
+
+            timer.reset();
+            while(timer.milliseconds() < 200);
+            indexerServo.setPosition(INDEXER_SERVO_POS_A_EXTRA);
+            artifactAtIndexerPositions[0] = false; artifactAtIndexerPositions[1] = false; artifactAtIndexerPositions[2] = false;
+
         } else {
-            shootingState = ShootingStates.WAITING_STATE_SHOOTER;
-            shooterMotorTop.setVelocity(-TURRET_IDLE_SPEED);
-            shooterMotorBottom.setVelocity(TURRET_IDLE_SPEED);
+            TURRET_VAL = TURRET_IDLE_SPEED;
             indexBalls();
         }
+
+        shooterMotorTop.setVelocity(-shooterVelocity);
+        shooterMotorBottom.setVelocity(shooterVelocity);
     }
 
-    public void shootBalls (int shooterVelocity) {
-        boolean isTopMotorAtSpeed = shooterMotorTop.getVelocity() >= -shooterVelocity - 30 && shooterMotorTop.getVelocity() <= -shooterVelocity + 30;
+
+    /*
+      public void shootBalls (int shooterVelocity) {
         boolean isBottomMotorAtSpeed = shooterMotorBottom.getVelocity() >= shooterVelocity - 30 && shooterMotorBottom.getVelocity() <= shooterVelocity + 30;
 
-        areShooterMotorsAtSpeed = isTopMotorAtSpeed && isBottomMotorAtSpeed;
+        areShooterMotorsAtSpeed = isBottomMotorAtSpeed;
         switch (shootingState) {
             case WAITING_STATE_SHOOTER:
                 timer.reset();
                 while (timer.milliseconds() < 10);
-                shootingState = ShootingStates.INDEXER_EMPTY;
+                shootingState = ShootingStates.INDEXER_INTERMEDIATE;
                 break;
-            case INDEXER_EMPTY:
+            case INDEXER_INTERMEDIATE:
                 if (artifactAtIndexerPositions[2]) {
                     shootingState = ShootingStates.SHOOTING_C;
                     break;
@@ -131,6 +149,7 @@ public class IndexerShootingAndIntake {
                     break;
                 }
             case SHOOTING_C:
+                ledLight.setPosition(0.555);
                 shooterMotorTop.setVelocity(-shooterVelocity);
                 shooterMotorBottom.setVelocity(shooterVelocity);
                 timer.reset();
@@ -143,7 +162,7 @@ public class IndexerShootingAndIntake {
                     artifactAtIndexerPositions[2] = false;
                     intakeServoRight.setPosition(SERVO_TRAVEL_POS_RIGHT);
                     intakeServoLeft.setPosition(SERVO_TRAVEL_POS_LEFT);
-                    shootingState = ShootingStates.INDEXER_EMPTY;
+                    shootingState = ShootingStates.INDEXER_INTERMEDIATE;
                     break;
                 } else {
                     shootingState = ShootingStates.SHOOTING_C;
@@ -151,6 +170,7 @@ public class IndexerShootingAndIntake {
                 }
 
             case SHOOTING_B:
+                ledLight.setPosition(0.650);
                 shooterMotorTop.setVelocity(-shooterVelocity);
                 shooterMotorBottom.setVelocity(shooterVelocity);
                 indexerServo.setPosition(INDEXER_SERVO_POS_B);
@@ -164,13 +184,14 @@ public class IndexerShootingAndIntake {
                     artifactAtIndexerPositions[1] = false;
                     intakeServoRight.setPosition(SERVO_TRAVEL_POS_RIGHT);
                     intakeServoLeft.setPosition(SERVO_TRAVEL_POS_LEFT);
-                    shootingState = ShootingStates.INDEXER_EMPTY;
+                    shootingState = ShootingStates.INDEXER_INTERMEDIATE;
                     break;
                 } else {
                     shootingState = ShootingStates.SHOOTING_B;
                     break;
                 }
             case SHOOTING_A:
+                ledLight.setPosition(0.720);
                 shooterMotorTop.setVelocity(-shooterVelocity);
                 shooterMotorBottom.setVelocity(shooterVelocity);
                 indexerServo.setPosition(INDEXER_SERVO_POS_A);
@@ -184,7 +205,7 @@ public class IndexerShootingAndIntake {
                     artifactAtIndexerPositions[0] = false;
                     intakeServoRight.setPosition(SERVO_TRAVEL_POS_RIGHT);
                     intakeServoLeft.setPosition(SERVO_TRAVEL_POS_LEFT);
-                    shootingState = ShootingStates.INDEXER_EMPTY;
+                    shootingState = ShootingStates.INDEXER_INTERMEDIATE;
                     break;
                 } else {
                     shootingState = ShootingStates.SHOOTING_A;
@@ -195,7 +216,7 @@ public class IndexerShootingAndIntake {
 
     public ShootingStates getShooterState () {
         return shootingState;
-    }
+    } */
 
 
 
@@ -208,28 +229,22 @@ public class IndexerShootingAndIntake {
                 break;
             case INDEXER_EMPTY:
 
-                if (artifactAtIndexerPositions[0] == false) {
-                    ledLight.setPosition(0.277);
+                if (!artifactAtIndexerPositions[0]) {
                     indexStates = IndexStates.INDEX_TO_POS_A;
                     break;
-                } else if (artifactAtIndexerPositions[1] == false) {
-                    ledLight.setPosition(0.333);
+                } else if (!artifactAtIndexerPositions[1]) {
                     indexStates = IndexStates.INDEX_TO_POS_B;
                     break;
-                } else if (artifactAtIndexerPositions[2] == false) {
-                    ledLight.setPosition(0.388);
+                } else if (!artifactAtIndexerPositions[2]) {
                     indexStates = IndexStates.INDEX_TO_POS_C;
                     break;
                 } else {
-                    ledLight.setPosition(0.500);
                     indexStates = IndexStates.INDEXER_FULL;
                     break;
                 }
             case INDEX_TO_POS_A:
                 indexerServo.setPosition(INDEXER_SERVO_POS_A);
                 if (doesPosAHaveBall()) {
-                    timer.reset();
-                    while(timer.milliseconds() < 50);
                     artifactAtIndexerPositions[0] = true;
                     indexStates = IndexStates.INDEXER_EMPTY;
                     break;
@@ -240,8 +255,6 @@ public class IndexerShootingAndIntake {
             case INDEX_TO_POS_B:
                 indexerServo.setPosition(INDEXER_SERVO_POS_B);
                 if (doesPosBHaveBall()) {
-                    timer.reset();
-                    while(timer.milliseconds() < 50);
                     artifactAtIndexerPositions[1] = true;
                     indexStates = IndexStates.INDEXER_EMPTY;
                     break;
@@ -252,8 +265,6 @@ public class IndexerShootingAndIntake {
             case INDEX_TO_POS_C:
                 indexerServo.setPosition(INDEXER_SERVO_POS_C);
                 if (doesPosCHaveBall()) {
-                    timer.reset();
-                    while(timer.milliseconds() < 50);
                     artifactAtIndexerPositions[2] = true;
                     indexStates = IndexStates.INDEXER_EMPTY;
                     break;
@@ -262,7 +273,7 @@ public class IndexerShootingAndIntake {
                     break;
                 }
             case INDEXER_FULL:
-                if (artifactAtIndexerPositions[0] == false || artifactAtIndexerPositions[1] == false || artifactAtIndexerPositions[2] == false) {
+                if (!artifactAtIndexerPositions[0] || !artifactAtIndexerPositions[1] || !artifactAtIndexerPositions[2]) {
                     indexStates = IndexStates.INDEXER_EMPTY;
                     break;
                 } else {
@@ -274,6 +285,9 @@ public class IndexerShootingAndIntake {
     public IndexStates getIndexingState () {
         return indexStates;
     }
+
+
+
 
 
     public void autoShooting(double shooterVelocity) {

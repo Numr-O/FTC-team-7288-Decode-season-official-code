@@ -1,13 +1,13 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Auto_Opmodes;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.mainCode.IndexerShootingAndIntake;
-import org.firstinspires.ftc.teamcode.mainCode.LimeLightTrackingAndDistance;
-import org.firstinspires.ftc.teamcode.mainCode.RobotHardware;
+import org.firstinspires.ftc.teamcode.OLD_CLASSES.IndexerShootingAndIntake;
+import org.firstinspires.ftc.teamcode.OLD_CLASSES.LimeLightTrackingAndDistance;
+import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.RobotHardware;
 
 @Autonomous
 public class Auto extends OpMode {
@@ -31,6 +31,7 @@ public class Auto extends OpMode {
         indexerShootingAndIntake = new IndexerShootingAndIntake(hardwareList);
         timer = new ElapsedTime();
         robothwde.limelight.setPollRateHz(100);
+        robothwde.ledLight.setPosition(1);
     }
 
     @Override
@@ -41,11 +42,13 @@ public class Auto extends OpMode {
             numberTwo = -1;
             numberOne = 1;
             outputTele = "RED";
+            robothwde.ledLight.setPosition(0.280);
         } else if (gamepad1.bWasReleased()) {
             robothwde.limelight.pipelineSwitch(1);
             numberTwo = 1;
             numberOne = -1;
             outputTele = "BLUE";
+            robothwde.ledLight.setPosition(0.666);
         }
 
         telemetry.addData("TEAM SELECT: ", outputTele);
@@ -56,7 +59,7 @@ public class Auto extends OpMode {
         robothwde.limelight.start();
 
         timer.reset();
-        while (timer.seconds() < 1.3) {
+        while (timer.milliseconds() < 1300) {
             robothwde.frontLeftMotor.setPower(-0.6);
             robothwde.backLeftMotor.setPower(-0.6);
             robothwde.frontRightMotor.setPower(-0.6);
@@ -85,7 +88,6 @@ public class Auto extends OpMode {
 
         indexerShootingAndIntake.autoShooting(limeLightTrackingAndDistance.calculateRPMForShooter());
 
-        telemetry.addData("State Shoot: ", indexerShootingAndIntake.getShooterState());
         telemetry.addData("State Index: ", indexerShootingAndIntake.getIndexingState());
 
         if (indexerShootingAndIntake.test == 4 && !done) {
@@ -98,7 +100,7 @@ public class Auto extends OpMode {
             robothwde.frontRightMotor.setPower(numberTwo * 0.6);
             robothwde.backRightMotor.setPower(numberOne * 0.6);
             timer.reset();
-            while (timer.milliseconds() < 750);
+            while (timer.milliseconds() < 1000);
             robothwde.frontLeftMotor.setPower(0);
             robothwde.backLeftMotor.setPower(0);
             robothwde.frontRightMotor.setPower(0);
