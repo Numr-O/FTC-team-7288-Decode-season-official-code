@@ -1,17 +1,13 @@
-package org.firstinspires.ftc.teamcode.Auto_Opmodes.Testing_Auto;
+package org.firstinspires.ftc.teamcode.Auto_Opmodes;
 
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
-import com.pedropathing.paths.PathConstraints;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.IndexingClass;
 import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.RobotHardware;
@@ -19,13 +15,14 @@ import org.firstinspires.ftc.teamcode.Used_Classes.Teleop_Only_Classes.TeleopSho
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
-@Autonomous
-public class PedroPathingTestAuto extends OpMode {
+@Autonomous(name = "Red Far Auto", group = "FAR AUTO")
+public class RedFarAuto extends OpMode {
     RobotHardware robotHardware = new RobotHardware();
     IndexingClass indexingClass = new IndexingClass();
     TeleopShootingAndIntaking shootingAndIntaking = new TeleopShootingAndIntaking();
     Follower follower;
     Timer pathTimer;
+    Timer timer;
     private int pathState;
     double pickupSpeed = 0.2 ;
     boolean startIndexing = true;
@@ -35,12 +32,14 @@ public class PedroPathingTestAuto extends OpMode {
     double SERVO_INTAKE_POS_LEFT = 0.66;
     double SERVO_TRAVEL_POS_RIGHT = 0.5;
     double SERVO_TRAVEL_POS_LEFT = 0.5;
+    double SERVO_TRANSFER_POS_RIGHT = 0.63;
+    double SERVO_TRANSFER_POS_LEFT = 0.4;
 
 
-    private final Pose startPose = new Pose(123.058,121.979,Math.toRadians(45));
-    private final Pose shootPose = new Pose(91.106,91.106,Math.toRadians(45));
-    private final Pose pickupPoseOnePre = new Pose(96.28,83.766,0);
-    private final Pose pickupPoseOnePost = new Pose(125.535,83.766,0);
+    private final Pose startPose = new Pose(94.99,7.98,Math.toRadians(90));
+    private final Pose shootPose = new Pose(84.19,18.13,Math.toRadians(65));
+    private final Pose pickupPoseOnePre = new Pose(92.83,35.62,0);
+    private final Pose pickupPoseOnePost = new Pose(129.53,42.53,0);
 
 
 
@@ -86,25 +85,27 @@ public class PedroPathingTestAuto extends OpMode {
                         shootingAndIntaking.launchArtifacts();
                         indexingClass.emptyIndexerArray();
                     }
-                    follower.followPath(shootToPickupPre);
+                    follower.followPath(shootToPickupPre, 0.8, true);
 
 
                     robotHardware.intakeServoLeft.setPosition(SERVO_INTAKE_POS_LEFT);
                     robotHardware.intakeServoRight.setPosition(SERVO_INTAKE_POS_RIGHT);
                     robotHardware.intakeMotor.setPower(1);
 
+                    timer.resetTimer();
 
                     pathState = 2;
                 }
                 break;
             case 2:
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() || timer.getElapsedTimeSeconds() > 2) {
 
                     follower.followPath(pickupPreToPickupPost, pickupSpeed, true);
 
                     pathTimer.resetTimer();
                     while(pathTimer.getElapsedTimeSeconds() < 1);
 
+                    timer.resetTimer();
                     pathState = 3;
                 }
                 break;
@@ -142,7 +143,7 @@ public class PedroPathingTestAuto extends OpMode {
         shootingAndIntaking.init(hardwareMap);
 
         pathTimer = new Timer();
-
+        timer = new Timer();
 
         follower = Constants.createFollower(hardwareMap);
         buildPaths();
@@ -159,8 +160,8 @@ public class PedroPathingTestAuto extends OpMode {
 
         indexingClass.indexArtifacts();
 
-        robotHardware.shooterMotorBottom.setVelocity(1050);
-        robotHardware.shooterMotorTop.setVelocity(-1050);
+//        robotHardware.shooterMotorBottom.setVelocity(1050);
+//        robotHardware.shooterMotorTop.setVelocity(-1050);
 
 
 

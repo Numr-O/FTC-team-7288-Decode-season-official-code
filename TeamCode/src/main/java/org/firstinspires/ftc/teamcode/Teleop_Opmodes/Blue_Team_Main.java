@@ -6,17 +6,16 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.IndexingClass;
+import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.RobotHardware;
 import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.ShooterDistanceAndVelocity;
 import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.TurretPositionPIDController;
-import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.RobotHardware;
 import org.firstinspires.ftc.teamcode.Used_Classes.Teleop_Only_Classes.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Used_Classes.Teleop_Only_Classes.TeleopShootingAndIntaking;
 
-@TeleOp(name = "Red Alliance", group = "Comp Teleop")
-public class Red_Team_Main extends OpMode {
+@TeleOp(name = "Blue Alliance", group = "Comp Teleop")
+public class Blue_Team_Main extends OpMode {
     RobotHardware robotHardware = new RobotHardware();
     TurretPositionPIDController turretPIDController = new TurretPositionPIDController();
     MecanumDrive mecanumDrive = new MecanumDrive();
@@ -41,9 +40,9 @@ public class Red_Team_Main extends OpMode {
     double SERVO_INTAKE_POS_LEFT = 0.66;
     double SERVO_TRAVEL_POS_RIGHT = 0.5;
     double SERVO_TRAVEL_POS_LEFT = 0.5;
-    int RED_TEAM_PIPELINE = 0;
+    int BLUE_TEAM_PIPELINE = 1;
 
-    int[] SHOOTER_VELOCITIES_DEGREES = {355,300,275,4};
+    int[] SHOOTER_VELOCITIES_DEGREES = {348,300,275,4};
 
 
     public void init() {
@@ -55,7 +54,7 @@ public class Red_Team_Main extends OpMode {
 
         //---------------Other Initialization --------------------------------
         robotHardware.limelight.setPollRateHz(100);
-        robotHardware.limelight.pipelineSwitch(RED_TEAM_PIPELINE);
+        robotHardware.limelight.pipelineSwitch(BLUE_TEAM_PIPELINE);
 
         SparkFunOTOS.Pose2D offsetPose = new SparkFunOTOS.Pose2D(0,0,-90);
         robotHardware.sparkFunOTOS.setPosition(offsetPose);

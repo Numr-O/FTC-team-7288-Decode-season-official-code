@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.
 import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.RobotHardware;
 
 
-public class TeleopShootingAndIntaking {
+public class TeleopShootingAndIntaking extends IndexingClass{
     RobotHardware robotHardware = new RobotHardware();
     IndexingClass indexingClass = new IndexingClass();
     ElapsedTime timer;
@@ -70,7 +70,6 @@ public class TeleopShootingAndIntaking {
         timer.reset();
         while (timer.milliseconds()<100);
         robotHardware.indexerServo.setPosition(INDEXER_SERVO_POS_A_EXTRA);
-        indexingClass.indexerPositions[0] = false; indexingClass.indexerPositions[1] = false; indexingClass.indexerPositions[2] = false;
     }
 
 

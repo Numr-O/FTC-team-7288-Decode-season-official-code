@@ -19,14 +19,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class Constants {
     static double ROBOT_MASS_IN_KG = 11.521;
     static double OTOS_LINEAR_SCALAR = 190.24164571428284;
-    static double OTOS_ANGULAR_SCALAR = 0.9997;
-    static double X_VELOCITY = 67.61385699896423;
-    static double Y_VELOCITY = 54.35493048720472;
-    static double FORWARD_ZERO_POWER_ACCELERATION = -35.529813702112506;
-    static double LATERAL_ZERO_POWER_ACCELERATION = -70.06328763322483;
+    static double OTOS_ANGULAR_SCALAR = 1;
+    static double X_VELOCITY = 64.65221014548474;
+    static double Y_VELOCITY = 51.12054779773622;
+    static double FORWARD_ZERO_POWER_ACCELERATION = -37.044193073376;
+    static double LATERAL_ZERO_POWER_ACCELERATION = -64.87619107906065;
     static double CENTRIPETAL_SCALING = 0.0004;
 
-    static SparkFunOTOS.Pose2D INITIAL_BOTPOSE = new SparkFunOTOS.Pose2D(0,0,Math.PI);
+    static SparkFunOTOS.Pose2D INITIAL_BOTPOSE = new SparkFunOTOS.Pose2D(2,1.75,Math.PI);
 
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(ROBOT_MASS_IN_KG)
@@ -60,7 +60,7 @@ public class Constants {
             .angularScalar(OTOS_ANGULAR_SCALAR)
             .offset(INITIAL_BOTPOSE);
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1.36, 0.5);
+    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 2, 0.5);
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)

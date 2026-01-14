@@ -9,11 +9,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class RobotHardware {
+    PIDFCoefficients velocityPIDFCoefficients = new PIDFCoefficients(300, 0,0,17.334);
 
 
     public BNO055IMU imu;
@@ -71,8 +73,13 @@ public class RobotHardware {
 
 
         turretMotor = hwmap.get(DcMotorEx.class, "turret");
-        turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turretMotor.setTargetPositionTolerance(0);
+        turretMotor.setTargetPosition(0);
+
+
+
 
 
         intakeMotor = hwmap.get(DcMotor.class, "test");
@@ -94,12 +101,14 @@ public class RobotHardware {
 
         shooterMotorTop.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         shooterMotorBottom.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        shooterMotorTop.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooterMotorBottom.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-//        shooterMotorTop.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        shooterMotorBottom.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//
-//        shooterMotorTop.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        shooterMotorBottom.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooterMotorTop.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, velocityPIDFCoefficients);
+        shooterMotorBottom.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, velocityPIDFCoefficients);
+
+
+
 
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -119,12 +128,12 @@ public class RobotHardware {
         limelight = hwmap.get(Limelight3A.class, "LimeLight");
 
 
-        pose2D = new SparkFunOTOS.Pose2D(0,0,-90);
+        pose2D = new SparkFunOTOS.Pose2D(0,0,0);
         sparkFunOTOS = hwmap.get(SparkFunOTOS.class, "otos");
-//        sparkFunOTOS.setOffset(pose2D);
-        sparkFunOTOS.setAngularScalar(0.997);
+        sparkFunOTOS.setPosition(pose2D);
         sparkFunOTOS.setLinearUnit(DistanceUnit.CM);
-        sparkFunOTOS.setLinearScalar(1.006);
+        sparkFunOTOS.setLinearScalar(1.01);
+        sparkFunOTOS.setAngularScalar(1.00);
 
     }
 

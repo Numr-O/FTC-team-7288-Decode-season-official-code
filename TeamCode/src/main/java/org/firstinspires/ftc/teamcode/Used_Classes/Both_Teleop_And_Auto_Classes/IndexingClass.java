@@ -71,8 +71,8 @@ public class IndexingClass {
                 robotHardware.indexerServo.setPosition(INDEXER_SERVO_POS_A);
                 if (doesPosAHaveArtifact()) {
                     indexerPositions[0] = true;
-                    timer.reset();
-                    while(timer.milliseconds()<50);
+//                    timer.reset();
+//                    while(timer.milliseconds()<50);
                     indexerStates = IndexerStates.INTERMEDIATE_STATE;
                 } else {
                     indexerStates = IndexerStates.INDEX_TO_A;
@@ -83,8 +83,8 @@ public class IndexingClass {
                 robotHardware.indexerServo.setPosition(INDEXER_SERVO_POS_B);
                 if (doesPosBHaveArtifact()) {
                     indexerPositions[1] = true;
-                    timer.reset();
-                    while(timer.milliseconds()<50);
+//                    timer.reset();
+//                    while(timer.milliseconds()<50);
                     indexerStates = IndexerStates.INTERMEDIATE_STATE;
                 } else {
                     indexerStates = IndexerStates.INDEX_TO_B;
@@ -95,8 +95,8 @@ public class IndexingClass {
                 robotHardware.indexerServo.setPosition(INDEXER_SERVO_POS_C);
                 if (doesPosCHaveArtifact()) {
                     indexerPositions[2] = true;
-                    timer.reset();
-                    while(timer.milliseconds()<50);
+//                    timer.reset();
+//                    while(timer.milliseconds()<50);
                     indexerStates = IndexerStates.INTERMEDIATE_STATE;
                 } else {
                     indexerStates = IndexerStates.INDEX_TO_C;
@@ -107,11 +107,16 @@ public class IndexingClass {
                 if (!indexerPositions[0] || !indexerPositions[1] || !indexerPositions[2]) {
                     indexerStates = IndexerStates.INTERMEDIATE_STATE;
                 }
+                break;
 
         }
     }
 
-
+    public void emptyIndexerArray() {
+        indexerPositions[0] = false;
+        indexerPositions[1] = false;
+        indexerPositions[2] = false;
+    }
 
 
 

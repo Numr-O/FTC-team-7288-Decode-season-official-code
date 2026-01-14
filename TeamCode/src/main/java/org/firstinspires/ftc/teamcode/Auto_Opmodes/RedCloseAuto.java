@@ -1,52 +1,56 @@
-package org.firstinspires.ftc.teamcode.Auto_Opmodes.Testing_Auto;
+package org.firstinspires.ftc.teamcode.Auto_Opmodes;
 
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
-import com.pedropathing.paths.PathConstraints;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.IndexingClass;
 import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.RobotHardware;
 import org.firstinspires.ftc.teamcode.Used_Classes.Teleop_Only_Classes.TeleopShootingAndIntaking;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
-@Autonomous
-public class PedroPathingTestAuto extends OpMode {
+@Autonomous(name = "Red Close Auto", group = "CLOSE AUTO")
+public class RedCloseAuto extends OpMode {
     RobotHardware robotHardware = new RobotHardware();
     IndexingClass indexingClass = new IndexingClass();
     TeleopShootingAndIntaking shootingAndIntaking = new TeleopShootingAndIntaking();
     Follower follower;
     Timer pathTimer;
     private int pathState;
-    double pickupSpeed = 0.2 ;
+    double pickupSpeed = 0.28 ;
     boolean startIndexing = true;
+    boolean zero = false;
 
+
+    double INDEXER_SERVO_POS_A_EXTRA = 0.97;
 
     double SERVO_INTAKE_POS_RIGHT = 0.34;
     double SERVO_INTAKE_POS_LEFT = 0.66;
     double SERVO_TRAVEL_POS_RIGHT = 0.5;
     double SERVO_TRAVEL_POS_LEFT = 0.5;
+    double SERVO_TRANSFER_POS_RIGHT = 0.63;
+    double SERVO_TRANSFER_POS_LEFT = 0.4;
 
 
     private final Pose startPose = new Pose(123.058,121.979,Math.toRadians(45));
     private final Pose shootPose = new Pose(91.106,91.106,Math.toRadians(45));
     private final Pose pickupPoseOnePre = new Pose(96.28,83.766,0);
-    private final Pose pickupPoseOnePost = new Pose(125.535,83.766,0);
+    private final Pose pickupPoseOnePost = new Pose(118.535,83.766,0);
+    private final Pose shootPoseTwo = new Pose(91.106,91.106,Math.toRadians(45));
+    private final Pose moveOffPose = new Pose(103.19,80.09,Math.toRadians(60));
 
 
 
 
 
-    private PathChain startToShoot, shootToPickupPre, pickupPreToPickupPost, pickupPostToShoot;
+    private PathChain startToShoot, shootToPickupPre, pickupPreToPickupPost, pickupPostToShoot, moveOffPath;
 
     public void buildPaths() {
 
@@ -64,9 +68,14 @@ public class PedroPathingTestAuto extends OpMode {
                 .setLinearHeadingInterpolation(pickupPoseOnePre.getHeading(), pickupPoseOnePost.getHeading())
                 .build();
         pickupPostToShoot = follower.pathBuilder()
-                .addPath(new BezierLine(pickupPoseOnePost, shootPose))
-                .setLinearHeadingInterpolation(pickupPoseOnePost.getHeading(), shootPose.getHeading())
+                .addPath(new BezierLine(pickupPoseOnePost, shootPoseTwo))
+                .setLinearHeadingInterpolation(pickupPoseOnePost.getHeading(), shootPoseTwo.getHeading())
                 .build();
+        moveOffPath = follower.pathBuilder()
+                .addPath(new BezierLine(shootPoseTwo, moveOffPose))
+                .setLinearHeadingInterpolation(shootPoseTwo.getHeading(),moveOffPose.getHeading())
+                .build();
+
     }
 
     public void autonomousPathUpdate() {
@@ -79,13 +88,19 @@ public class PedroPathingTestAuto extends OpMode {
                 if (!follower.isBusy()) {
 
 
+                    robotHardware.intakeServoRight.setPosition(SERVO_TRANSFER_POS_RIGHT);
+                    robotHardware.intakeServoLeft.setPosition(SERVO_TRANSFER_POS_LEFT);
+                    robotHardware.intakeMotor.setPower(1);
+
+                    pathTimer.resetTimer();
+                    while(pathTimer.getElapsedTimeSeconds() < 1);
+
+                    robotHardware.indexerServo.setPosition(INDEXER_SERVO_POS_A_EXTRA);
+                    indexingClass.emptyIndexerArray();
 
 
                     pathTimer.resetTimer();
-                    while (pathTimer.getElapsedTimeSeconds() < 4) {
-                        shootingAndIntaking.launchArtifacts();
-                        indexingClass.emptyIndexerArray();
-                    }
+                    while (pathTimer.getElapsedTimeSeconds() < 3);
                     follower.followPath(shootToPickupPre);
 
 
@@ -102,8 +117,7 @@ public class PedroPathingTestAuto extends OpMode {
 
                     follower.followPath(pickupPreToPickupPost, pickupSpeed, true);
 
-                    pathTimer.resetTimer();
-                    while(pathTimer.getElapsedTimeSeconds() < 1);
+
 
                     pathState = 3;
                 }
@@ -111,6 +125,7 @@ public class PedroPathingTestAuto extends OpMode {
 
             case 3:
                 if (!follower.isBusy()) {
+
 
 
                     robotHardware.intakeServoLeft.setPosition(SERVO_TRAVEL_POS_LEFT);
@@ -125,13 +140,29 @@ public class PedroPathingTestAuto extends OpMode {
                 break;
             case 4:
                 if (!follower.isBusy()) {
-                    while (pathTimer.getElapsedTimeSeconds() < 4) {
-                        shootingAndIntaking.launchArtifacts();
-                        indexingClass.emptyIndexerArray();
-                    }
-                    pathState = -1;
+                    robotHardware.intakeServoRight.setPosition(SERVO_TRANSFER_POS_RIGHT);
+                    robotHardware.intakeServoLeft.setPosition(SERVO_TRANSFER_POS_LEFT);
+                    robotHardware.intakeMotor.setPower(1);
+
+                    pathTimer.resetTimer();
+                    while(pathTimer.getElapsedTimeSeconds() < 1);
+
+                    robotHardware.indexerServo.setPosition(INDEXER_SERVO_POS_A_EXTRA);
+                    indexingClass.emptyIndexerArray();
+
+
+                    pathTimer.resetTimer();
+                    while (pathTimer.getElapsedTimeSeconds() < 3);
+
+                    pathState = 5;
                 }
                 break;
+            case 5:
+                if(!follower.isBusy()) {
+                    follower.followPath(moveOffPath);
+                    pathState = -1;
+                    zero = true;
+                }
         }
     }
 
@@ -148,7 +179,7 @@ public class PedroPathingTestAuto extends OpMode {
         buildPaths();
         follower.setStartingPose(startPose);
 
-
+        telemetry.addData("Init: ", "Complete");
     }
 
     public void start() {
@@ -156,12 +187,20 @@ public class PedroPathingTestAuto extends OpMode {
     }
 
     public void loop() {
+        if (pathState == 2 || pathState == 3) {
+            indexingClass.indexArtifacts();
+        }
 
-        indexingClass.indexArtifacts();
 
-        robotHardware.shooterMotorBottom.setVelocity(1050);
-        robotHardware.shooterMotorTop.setVelocity(-1050);
 
+        if (!zero) {
+            robotHardware.shooterMotorBottom.setVelocity(270, AngleUnit.DEGREES);
+            robotHardware.shooterMotorTop.setVelocity(-270, AngleUnit.DEGREES);
+        } else {
+            robotHardware.shooterMotorTop.setVelocity(0);
+            robotHardware.shooterMotorBottom.setVelocity(0);
+            robotHardware.intakeMotor.setPower(0);
+        }
 
 
         follower.update();
