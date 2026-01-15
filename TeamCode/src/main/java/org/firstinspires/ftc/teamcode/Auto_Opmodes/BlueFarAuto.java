@@ -76,6 +76,7 @@ public class BlueFarAuto extends OpMode {
                 .addPath(new BezierLine(shootPose, moveOffPose))
                 .setLinearHeadingInterpolation(shootPose.getHeading(), moveOffPose.getHeading())
                 .build();
+
     }
 
     public void autonomousPathUpdate() {

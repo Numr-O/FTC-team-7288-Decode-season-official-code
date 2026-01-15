@@ -81,9 +81,9 @@ public class Blue_Team_Main extends OpMode {
 
 //--------------------------------- Mecanum Driving --------------------------------
         if (gamepad1.start) {
-            headingOffset = robotHardware.imu.getAngularOrientation().firstAngle;
+            headingOffset = imuAngle;
         }
-        mecanumDrive.drive(-gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x,headingOffset);
+        mecanumDrive.drive(-gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x,imuAngle,headingOffset);
 
 
 //---------------------------- Turret Positioning Code -----------------------------
