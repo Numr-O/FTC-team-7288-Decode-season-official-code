@@ -10,16 +10,21 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.IndexingClass;
 import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.RobotHardware;
 import org.firstinspires.ftc.teamcode.Used_Classes.Teleop_Only_Classes.TeleopShootingAndIntaking;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
+import java.io.File;
+
 
 @Autonomous(name = "Blue Far Auto", group = "FAR AUTO")
 public class BlueFarAuto extends OpMode {
+    File file = AppUtil.getInstance().getSettingsFile("endPose.txt");
     RobotHardware robotHardware = new RobotHardware();
     IndexingClass indexingClass = new IndexingClass();
     TeleopShootingAndIntaking shootingAndIntaking = new TeleopShootingAndIntaking();
@@ -221,5 +226,10 @@ public class BlueFarAuto extends OpMode {
 
         follower.update();
         autonomousPathUpdate();
+    }
+
+    public void stop() {
+        String otosEndPose = follower.poseTracker.getPose().getX() + " " + follower.poseTracker.getPose().getY() + " " + follower.poseTracker.getPose().getHeading();
+        ReadWriteFile.writeFile(file, otosEndPose);
     }
 }

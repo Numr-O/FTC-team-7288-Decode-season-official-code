@@ -12,8 +12,8 @@ public class MecanumDrive {
         robotHardware.init(hardwareMap);
     }
 
-    public void drive(double Y, double X, double RX,double imuAngle ,double headingOffset) {
-        double botHeading = imuAngle - headingOffset;
+    public void drive(double Y, double X, double RX,double botHeading) {
+
 
         double rotX = X * Math.cos(botHeading) - Y * Math.sin(botHeading);
         double rotY = X * Math.sin(botHeading) + Y * Math.cos(botHeading);

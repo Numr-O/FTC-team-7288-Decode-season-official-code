@@ -73,7 +73,7 @@ public class IndexingClass {
                     indexerPositions[0] = true;
 //                    timer.reset();
 //                    while(timer.milliseconds()<50);
-                    indexerStates = IndexerStates.INTERMEDIATE_STATE;
+                    indexerStates = IndexerStates.INDEX_TO_B;
                 } else {
                     indexerStates = IndexerStates.INDEX_TO_A;
                 }
@@ -85,7 +85,7 @@ public class IndexingClass {
                     indexerPositions[1] = true;
 //                    timer.reset();
 //                    while(timer.milliseconds()<50);
-                    indexerStates = IndexerStates.INTERMEDIATE_STATE;
+                    indexerStates = IndexerStates.INDEX_TO_C;
                 } else {
                     indexerStates = IndexerStates.INDEX_TO_B;
                 }
@@ -97,7 +97,7 @@ public class IndexingClass {
                     indexerPositions[2] = true;
 //                    timer.reset();
 //                    while(timer.milliseconds()<50);
-                    indexerStates = IndexerStates.INTERMEDIATE_STATE;
+                    indexerStates = IndexerStates.INDEXER_FULL;
                 } else {
                     indexerStates = IndexerStates.INDEX_TO_C;
                 }

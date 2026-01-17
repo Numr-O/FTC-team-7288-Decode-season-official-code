@@ -9,11 +9,17 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.IndexingClass;
 import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.RobotHardware;
 import org.firstinspires.ftc.teamcode.Used_Classes.Teleop_Only_Classes.TeleopShootingAndIntaking;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+
+import com.qualcomm.robotcore.util.ReadWriteFile;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import java.io.File;
+
 
 
 @Autonomous(name = "Blue Close Auto", group = "CLOSE AUTO")
@@ -21,6 +27,8 @@ public class BlueCloseAuto extends OpMode {
     RobotHardware robotHardware = new RobotHardware();
     IndexingClass indexingClass = new IndexingClass();
     TeleopShootingAndIntaking shootingAndIntaking = new TeleopShootingAndIntaking();
+    File file = AppUtil.getInstance().getSettingsFile("endPose.txt");
+
     Follower follower;
     Timer pathTimer;
     Timer shootTimer;
@@ -51,6 +59,7 @@ public class BlueCloseAuto extends OpMode {
 
 
     private PathChain startToShoot, shootToPickupPre, pickupPreToPickupPost, pickupPostToShoot, moveOffPath;
+
 
     public void buildPaths() {
 
@@ -204,5 +213,11 @@ public class BlueCloseAuto extends OpMode {
 
         follower.update();
         autonomousPathUpdate();
+    }
+
+    public void stop() {
+        String otosEndPose = follower.poseTracker.getPose().getX() + " " + follower.poseTracker.getPose().getY() + " " + follower.poseTracker.getPose().getHeading();
+        ReadWriteFile.writeFile(file, otosEndPose);
+
     }
 }

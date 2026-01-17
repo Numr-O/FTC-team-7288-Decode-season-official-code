@@ -19,7 +19,7 @@ public class TurretPositionPIDController {
         double trueErrorCorrection = (currentAngleError + translationErrorAngle) - currentTXError;
         double desiredMotorPosition = Kmt * trueErrorCorrection;
 
-        return (int) desiredMotorPosition;
+        return (int) (desiredMotorPosition);
     }
 
 

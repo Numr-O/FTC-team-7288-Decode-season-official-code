@@ -72,6 +72,17 @@ public class TeleopShootingAndIntaking extends IndexingClass{
         robotHardware.indexerServo.setPosition(INDEXER_SERVO_POS_A_EXTRA);
     }
 
+    public void launchArtifactTwo(boolean isShooterAtSpeed) {
+        if (isShooterAtSpeed) {
+            robotHardware.intakeMotor.setPower(1);
+            robotHardware.intakeServoRight.setPosition(SERVO_TRANSFER_POS_RIGHT);
+            robotHardware.intakeServoLeft.setPosition(SERVO_TRANSFER_POS_LEFT);
+            timer.reset();
+            while (timer.milliseconds() < 100) ;
+            robotHardware.indexerServo.setPosition(INDEXER_SERVO_POS_A_EXTRA);
+        }
+    }
+
 
 
 

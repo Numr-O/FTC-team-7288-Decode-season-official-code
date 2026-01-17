@@ -12,10 +12,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class RobotHardware {
-    PIDFCoefficients velocityPIDFCoefficients = new PIDFCoefficients(300, 0,0,17.334);
+    PIDFCoefficients velocityPIDFCoefficients = new PIDFCoefficients(200, 0,0,17.334);
 
 
     public BNO055IMU imu;
@@ -131,7 +132,8 @@ public class RobotHardware {
         pose2D = new SparkFunOTOS.Pose2D(0,0,0);
         sparkFunOTOS = hwmap.get(SparkFunOTOS.class, "otos");
         sparkFunOTOS.setPosition(pose2D);
-        sparkFunOTOS.setLinearUnit(DistanceUnit.CM);
+        sparkFunOTOS.setLinearUnit(DistanceUnit.INCH);
+        sparkFunOTOS.setAngularUnit(AngleUnit.RADIANS);
         sparkFunOTOS.setLinearScalar(1.01);
         sparkFunOTOS.setAngularScalar(1.00);
 
