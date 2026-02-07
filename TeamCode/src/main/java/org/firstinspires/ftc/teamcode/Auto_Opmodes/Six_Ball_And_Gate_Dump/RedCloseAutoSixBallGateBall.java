@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Auto_Opmodes;
+package org.firstinspires.ftc.teamcode.Auto_Opmodes.Six_Ball_And_Gate_Dump;
 
 
 import com.pedropathing.follower.Follower;
@@ -8,6 +8,7 @@ import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -19,9 +20,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.io.File;
 
-
-@Autonomous(name = "Red Close Auto", group = "CLOSE AUTO")
-public class RedCloseAuto extends OpMode {
+@Autonomous
+public class RedCloseAutoSixBallGateBall extends OpMode {
     File file = AppUtil.getInstance().getSettingsFile("endPose.txt");
     RobotHardware robotHardware = new RobotHardware();
     IndexingClass indexingClass = new IndexingClass();
@@ -29,15 +29,15 @@ public class RedCloseAuto extends OpMode {
     Follower follower;
     Timer pathTimer;
     private int pathState;
-    double pickupSpeed = 0.28 ;
+    double pickupSpeed = 0.29;
     boolean startIndexing = true;
     boolean zero = false;
 
 
     double INDEXER_SERVO_POS_A_EXTRA = 0.97;
 
-    double SERVO_INTAKE_POS_RIGHT = 0.34;
-    double SERVO_INTAKE_POS_LEFT = 0.66;
+    double SERVO_INTAKE_POS_RIGHT = 0.37;
+    double SERVO_INTAKE_POS_LEFT = 0.63;
     double SERVO_TRAVEL_POS_RIGHT = 0.5;
     double SERVO_TRAVEL_POS_LEFT = 0.5;
     double SERVO_TRANSFER_POS_RIGHT = 0.63;
@@ -47,7 +47,8 @@ public class RedCloseAuto extends OpMode {
     private final Pose startPose = new Pose(123.058,121.979,Math.toRadians(45));
     private final Pose shootPose = new Pose(91.106,91.106,Math.toRadians(45));
     private final Pose pickupPoseOnePre = new Pose(96.28,83.766,0);
-    private final Pose pickupPoseOnePost = new Pose(118.535,83.766,0);
+    private final Pose pickupPoseOnePost = new Pose(116.535,83.766,0);
+    private final Pose dumpPose = new Pose(127.618,76.91,0);
     private final Pose shootPoseTwo = new Pose(91.106,91.106,Math.toRadians(45));
     private final Pose moveOffPose = new Pose(103.19,80.09,Math.toRadians(60));
 
@@ -55,7 +56,7 @@ public class RedCloseAuto extends OpMode {
 
 
 
-    private PathChain startToShoot, shootToPickupPre, pickupPreToPickupPost, pickupPostToShoot, moveOffPath;
+    private PathChain startToShoot, shootToPickupPre, pickupPreToPickupPost, dumpBalls ,dumpToShoot, moveOffPath;
 
     public void buildPaths() {
 
@@ -72,9 +73,13 @@ public class RedCloseAuto extends OpMode {
                 .addPath(new BezierLine(pickupPoseOnePre, pickupPoseOnePost))
                 .setLinearHeadingInterpolation(pickupPoseOnePre.getHeading(), pickupPoseOnePost.getHeading())
                 .build();
-        pickupPostToShoot = follower.pathBuilder()
-                .addPath(new BezierLine(pickupPoseOnePost, shootPoseTwo))
-                .setLinearHeadingInterpolation(pickupPoseOnePost.getHeading(), shootPoseTwo.getHeading())
+        dumpBalls = follower.pathBuilder()
+                .addPath(new BezierLine(pickupPoseOnePost, dumpPose))
+                .setLinearHeadingInterpolation(pickupPoseOnePost.getHeading(), dumpPose.getHeading())
+                .build();
+        dumpToShoot = follower.pathBuilder()
+                .addPath(new BezierLine(dumpPose, shootPoseTwo))
+                .setLinearHeadingInterpolation(dumpPose.getHeading(), shootPoseTwo.getHeading())
                 .build();
         moveOffPath = follower.pathBuilder()
                 .addPath(new BezierLine(shootPoseTwo, moveOffPose))
@@ -86,34 +91,26 @@ public class RedCloseAuto extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
+                robotHardware.intakeServoRight.setPosition(SERVO_TRAVEL_POS_RIGHT);
+                robotHardware.intakeServoLeft.setPosition(SERVO_TRAVEL_POS_LEFT);
+
                 follower.followPath(startToShoot, 0.7, true);
                 pathState = 1;
                 break;
             case 1:
                 if (!follower.isBusy()) {
 
-
-                    robotHardware.intakeServoRight.setPosition(SERVO_TRANSFER_POS_RIGHT);
-                    robotHardware.intakeServoLeft.setPosition(SERVO_TRANSFER_POS_LEFT);
-                    robotHardware.intakeMotor.setPower(1);
+                    launchArtifacts();
 
                     pathTimer.resetTimer();
-                    while(pathTimer.getElapsedTimeSeconds() < 1);
-
-                    robotHardware.indexerServo.setPosition(INDEXER_SERVO_POS_A_EXTRA);
-                    indexingClass.emptyIndexerArray();
-
-
-                    pathTimer.resetTimer();
-                    while (pathTimer.getElapsedTimeSeconds() < 3);
+                    while (pathTimer.getElapsedTimeSeconds() < 1);
                     follower.followPath(shootToPickupPre);
-
 
                     robotHardware.intakeServoLeft.setPosition(SERVO_INTAKE_POS_LEFT);
                     robotHardware.intakeServoRight.setPosition(SERVO_INTAKE_POS_RIGHT);
                     robotHardware.intakeMotor.setPower(1);
 
-
+                    zero = true;
                     pathState = 2;
                 }
                 break;
@@ -131,40 +128,42 @@ public class RedCloseAuto extends OpMode {
             case 3:
                 if (!follower.isBusy()) {
 
-
-
-                    robotHardware.intakeServoLeft.setPosition(SERVO_TRAVEL_POS_LEFT);
-                    robotHardware.intakeServoRight.setPosition(SERVO_TRAVEL_POS_RIGHT);
                     robotHardware.intakeMotor.setPower(0);
 
-                    follower.followPath(pickupPostToShoot);
+                    follower.followPath(dumpBalls);
                     pathState = 4;
 
-
+                    zero = false;
                 }
                 break;
             case 4:
                 if (!follower.isBusy()) {
-                    robotHardware.intakeServoRight.setPosition(SERVO_TRANSFER_POS_RIGHT);
-                    robotHardware.intakeServoLeft.setPosition(SERVO_TRANSFER_POS_LEFT);
-                    robotHardware.intakeMotor.setPower(1);
-
                     pathTimer.resetTimer();
                     while(pathTimer.getElapsedTimeSeconds() < 1);
 
-                    robotHardware.indexerServo.setPosition(INDEXER_SERVO_POS_A_EXTRA);
-                    indexingClass.emptyIndexerArray();
 
-
-                    pathTimer.resetTimer();
-                    while (pathTimer.getElapsedTimeSeconds() < 3);
-
+                    follower.followPath(dumpToShoot);
                     pathState = 5;
+
+                    zero = false;
                 }
                 break;
             case 5:
+                if (!follower.isBusy()) {
+                    launchArtifacts();
+
+                    pathTimer.resetTimer();
+                    while (pathTimer.getElapsedTimeSeconds() < 1);
+
+
+                    pathState = 6;
+                }
+                break;
+            case 6:
                 if(!follower.isBusy()) {
                     follower.followPath(moveOffPath);
+
+                    robotHardware.intakeMotor.setPower(0);
                     pathState = -1;
                     zero = true;
                 }
@@ -204,7 +203,6 @@ public class RedCloseAuto extends OpMode {
         } else {
             robotHardware.shooterMotorTop.setVelocity(0);
             robotHardware.shooterMotorBottom.setVelocity(0);
-            robotHardware.intakeMotor.setPower(0);
         }
 
 
@@ -216,4 +214,17 @@ public class RedCloseAuto extends OpMode {
         String otosEndPose = follower.poseTracker.getPose().getX() + " " + follower.poseTracker.getPose().getY() + " " + follower.poseTracker.getPose().getHeading();
         ReadWriteFile.writeFile(file, otosEndPose);
     }
+
+    public void launchArtifacts() {
+        robotHardware.intakeMotor.setPower(1);
+        robotHardware.intakeServoRight.setPosition(SERVO_TRANSFER_POS_RIGHT);
+        robotHardware.intakeServoLeft.setPosition(SERVO_TRANSFER_POS_LEFT);
+
+        pathTimer.resetTimer();
+        while(pathTimer.getElapsedTimeSeconds() < 0.5);
+
+        robotHardware.indexerServo.setPosition(INDEXER_SERVO_POS_A_EXTRA);
+        indexingClass.emptyIndexerArray();
+    }
+
 }

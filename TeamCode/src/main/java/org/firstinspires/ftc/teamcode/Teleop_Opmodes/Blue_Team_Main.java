@@ -46,8 +46,8 @@ public class Blue_Team_Main extends OpMode {
 //    }};
 
     //------------------ Constants --------------------------------
-    double SERVO_INTAKE_POS_RIGHT = 0.34;
-    double SERVO_INTAKE_POS_LEFT = 0.66;
+    double SERVO_INTAKE_POS_RIGHT = 0.37;
+    double SERVO_INTAKE_POS_LEFT = 0.63;
     double SERVO_TRAVEL_POS_RIGHT = 0.5;
     double SERVO_TRAVEL_POS_LEFT = 0.5;
     int BLUE_TEAM_PIPELINE = 1;
@@ -177,7 +177,7 @@ public class Blue_Team_Main extends OpMode {
             robotHardware.turretMotor.setTargetPosition(turretPositionUpdater.updatePosition(currentTXError,imuAngle,xPos,yPos));
             robotHardware.turretMotor.setPower(1);
 
-            shootingAndIntaking.launchArtifactTwo(robotHardware.shooterMotorBottom.getVelocity(AngleUnit.DEGREES) < shooterSpeed + 3 && robotHardware.shooterMotorBottom.getVelocity(AngleUnit.DEGREES) > shooterSpeed - 3);
+            shootingAndIntaking.launchArtifactTwo(robotHardware.shooterMotorBottom.getVelocity(AngleUnit.DEGREES) < shooterSpeed + 4 && robotHardware.shooterMotorBottom.getVelocity(AngleUnit.DEGREES) > shooterSpeed - 4, indexingClass.doesPosBHaveArtifact());
             indexingClass.emptyIndexerArray();
             indexingClass.indexerStates = IndexingClass.IndexerStates.INDEX_TO_A;
         } else {

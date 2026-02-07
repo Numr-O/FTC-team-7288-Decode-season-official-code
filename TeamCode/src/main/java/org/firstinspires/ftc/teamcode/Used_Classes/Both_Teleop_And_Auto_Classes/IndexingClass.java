@@ -42,15 +42,23 @@ public class IndexingClass {
     // ---------- Functions ------------
 
     public boolean doesPosAHaveArtifact() {
-        return robotHardware.colorPosA.getDistance(DistanceUnit.MM) < 50 && robotHardware.colorPosA.getLightDetected() > 0.2;
+        return robotHardware.colorPosA.getDistance(DistanceUnit.MM) < 50 && !indexerPositions[0];
     }
 
     public boolean doesPosBHaveArtifact() {
-        return robotHardware.colorPosB.getDistance(DistanceUnit.MM) < 50 && robotHardware.colorPosB.getLightDetected() > 0.2;
+        return robotHardware.colorPosB.getDistance(DistanceUnit.MM) < 50 && !indexerPositions[1];
     }
 
     public boolean doesPosCHaveArtifact() {
-        return robotHardware.colorPosC.getDistance(DistanceUnit.MM) < 50 && robotHardware.colorPosC.getLightDetected() > 0.2;
+        return robotHardware.colorPosC.getDistance(DistanceUnit.MM) < 50 && !indexerPositions[2];
+    }
+
+    public boolean isBallInIndexer() {
+        return robotHardware.breakBeam.getState();
+    }
+
+    public boolean distanceSensor() {
+        return robotHardware.distanceSensor.getDistance(DistanceUnit.MM) < 60;
     }
 
 
@@ -104,6 +112,8 @@ public class IndexingClass {
                 break;
 
             case INDEXER_FULL:
+
+
                 if (!indexerPositions[0] || !indexerPositions[1] || !indexerPositions[2]) {
                     indexerStates = IndexerStates.INTERMEDIATE_STATE;
                 }
@@ -118,7 +128,13 @@ public class IndexingClass {
         indexerPositions[2] = false;
     }
 
-
+    public void indexerCapacityStatus() {
+        if (indexerStates == IndexerStates.INDEXER_FULL) {
+            robotHardware.ledLight.setPosition(0.5);
+        } else {
+            robotHardware.ledLight.setPosition(0.28);
+        }
+    }
 
 
 }

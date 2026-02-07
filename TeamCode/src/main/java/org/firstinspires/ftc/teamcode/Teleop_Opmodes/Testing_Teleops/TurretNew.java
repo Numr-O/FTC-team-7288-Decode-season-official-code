@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Teleop_Opmodes.Testing_Teleops;
 
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import java.io.File;
 
 
-@TeleOp
+@Configurable
 public class TurretNew extends OpMode {
     RobotHardware robotHardware = new RobotHardware();
     MecanumDrive mecanumDrive = new MecanumDrive();

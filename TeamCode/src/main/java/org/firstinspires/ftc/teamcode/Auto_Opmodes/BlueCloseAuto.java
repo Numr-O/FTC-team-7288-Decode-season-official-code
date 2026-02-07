@@ -39,8 +39,8 @@ public class BlueCloseAuto extends OpMode {
 
     double INDEXER_SERVO_POS_A_EXTRA = 0.97;
 
-    double SERVO_INTAKE_POS_RIGHT = 0.34;
-    double SERVO_INTAKE_POS_LEFT = 0.66;
+    double SERVO_INTAKE_POS_RIGHT = 0.37;
+    double SERVO_INTAKE_POS_LEFT = 0.63;
     double SERVO_TRAVEL_POS_RIGHT = 0.5;
     double SERVO_TRAVEL_POS_LEFT = 0.5;
     double SERVO_TRANSFER_POS_RIGHT = 0.63;
@@ -95,6 +95,8 @@ public class BlueCloseAuto extends OpMode {
                 break;
             case 1:
                 if (!follower.isBusy()) {
+                    pathTimer.resetTimer();
+                    while(pathTimer.getElapsedTimeSeconds() < 1);
 
                     robotHardware.intakeServoRight.setPosition(SERVO_TRANSFER_POS_RIGHT);
                     robotHardware.intakeServoLeft.setPosition(SERVO_TRANSFER_POS_LEFT);
@@ -148,6 +150,9 @@ public class BlueCloseAuto extends OpMode {
                 break;
             case 4:
                 if (!follower.isBusy()) {
+                    pathTimer.resetTimer();
+                    while(pathTimer.getElapsedTimeSeconds() < 1);
+
                     robotHardware.intakeServoRight.setPosition(SERVO_TRANSFER_POS_RIGHT);
                     robotHardware.intakeServoLeft.setPosition(SERVO_TRANSFER_POS_LEFT);
                     robotHardware.intakeMotor.setPower(1);

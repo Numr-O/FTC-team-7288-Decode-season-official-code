@@ -11,4 +11,8 @@ public class ShooterDistanceAndVelocity {
     }
 
 
+    public double distanceToSpeed(double distance) {
+        return 1.67279 * distance + 889.73139;
+    }
+
 }

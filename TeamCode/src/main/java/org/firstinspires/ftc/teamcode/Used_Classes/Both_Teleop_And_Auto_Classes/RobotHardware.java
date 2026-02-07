@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.DigitalChannelImpl;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -16,7 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class RobotHardware {
-    PIDFCoefficients velocityPIDFCoefficients = new PIDFCoefficients(200, 0,0,17.334);
+    PIDFCoefficients velocityPIDFCoefficients = new PIDFCoefficients(600, 0,0,17.517);
 
 
     public BNO055IMU imu;
@@ -48,6 +50,8 @@ public class RobotHardware {
     public ColorRangeSensor colorPosA; //Indexer Servo 0.9
     public ColorRangeSensor colorPosB; //Indexer Servo 0.5
     public ColorRangeSensor colorPosC; //Indexer Servo 0.1
+    public ColorRangeSensor distanceSensor;
+    public DigitalChannel breakBeam;
 
     public SparkFunOTOS.Pose2D pose2D;
 
@@ -124,6 +128,8 @@ public class RobotHardware {
         colorPosA = hwmap.get(ColorRangeSensor.class, "colorPosA");
         colorPosB = hwmap.get(ColorRangeSensor.class, "colorPosB");
         colorPosC = hwmap.get(ColorRangeSensor.class, "colorPosC");
+        distanceSensor = hwmap.get(ColorRangeSensor.class, "ds");
+        breakBeam = hwmap.get(DigitalChannel.class, "breakBeam");
 
 
         limelight = hwmap.get(Limelight3A.class, "LimeLight");

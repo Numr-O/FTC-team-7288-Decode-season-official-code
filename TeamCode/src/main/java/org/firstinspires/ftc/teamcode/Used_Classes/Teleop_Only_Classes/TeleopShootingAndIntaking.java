@@ -25,8 +25,10 @@ public class TeleopShootingAndIntaking extends IndexingClass{
 
     double INDEXER_SERVO_POS_A_EXTRA = 0.97;
 
-    double SERVO_TRANSFER_POS_RIGHT = 0.63;
-    double SERVO_TRANSFER_POS_LEFT = 0.4;
+    double SERVO_TRANSFER_POS_RIGHT = 0.61;
+    double SERVO_TRANSFER_POS_LEFT = 0.42;
+    double SERVO_TRANSFER_POS_RIGHT_FULL_IN = 0.64;
+    double SERVO_TRANSFER_POS_LEFT_FULL_IN = 0.4;
 
 
 
@@ -72,14 +74,23 @@ public class TeleopShootingAndIntaking extends IndexingClass{
         robotHardware.indexerServo.setPosition(INDEXER_SERVO_POS_A_EXTRA);
     }
 
-    public void launchArtifactTwo(boolean isShooterAtSpeed) {
+    public void launchArtifactTwo(boolean isShooterAtSpeed, boolean posBArtifact) {
         if (isShooterAtSpeed) {
             robotHardware.intakeMotor.setPower(1);
-            robotHardware.intakeServoRight.setPosition(SERVO_TRANSFER_POS_RIGHT);
-            robotHardware.intakeServoLeft.setPosition(SERVO_TRANSFER_POS_LEFT);
+
+            if (!posBArtifact) {
+                robotHardware.intakeServoRight.setPosition(SERVO_TRANSFER_POS_RIGHT_FULL_IN);
+                robotHardware.intakeServoLeft.setPosition(SERVO_TRANSFER_POS_LEFT_FULL_IN);
+            } else {
+                robotHardware.intakeServoRight.setPosition(SERVO_TRANSFER_POS_RIGHT);
+                robotHardware.intakeServoLeft.setPosition(SERVO_TRANSFER_POS_LEFT);
+            }
+            
             timer.reset();
             while (timer.milliseconds() < 100) ;
             robotHardware.indexerServo.setPosition(INDEXER_SERVO_POS_A_EXTRA);
+
+
         }
     }
 

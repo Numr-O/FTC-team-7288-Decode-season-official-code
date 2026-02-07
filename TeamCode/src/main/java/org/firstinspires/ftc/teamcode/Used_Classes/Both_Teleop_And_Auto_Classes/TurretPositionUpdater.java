@@ -55,7 +55,7 @@ public class TurretPositionUpdater {
 
 
 
-        double translationalAngle = Math.acos(initialVector.dot(currentVector) / (calculateMagnitude(initialVector.get(0,0),initialVector.get(1,0)) * calculateMagnitude(currentVector.get(0,0),currentVector.get(1,0))));
+        double translationalAngle = Math.acos(initialVector.dot(currentVector) / (initialVector.normF() * currentVector.normF()));
         if (x - initialRobotPose[0] < 0) {
             multiplier = 1;
         } else {
@@ -65,12 +65,61 @@ public class TurretPositionUpdater {
 
         double angle = multiplier * translationalAngle;
         double angleRotation = angle + imuAngle;
+        angleRotation = Math.toDegrees(angleRotation);
+        double trueTxOffset = (txOffset < 3) ? 2 * txOffset : txOffset ;
 
-        return (int) (Kt * (Math.toDegrees(angleRotation) - txOffset));
+        return (int) ((Kt * angleRotation) - trueTxOffset);
     }
 
-    public double  calculateMagnitude (double x, double y) {
-        return Math.sqrt(Math.pow(x,2) + Math.pow(y,2));
+
+    public int updatePositionTwo(double txOffset, double imuAngle, double x, double y) {
+
+        currentVector.set(0,0,selectedTeamPose[0]-x);
+        currentVector.set(1,0,selectedTeamPose[1]-y);
+
+
+
+        double translationalAngle = Math.acos(initialVector.dot(currentVector) / (initialVector.normF() * currentVector.normF()));
+        if (x - initialRobotPose[0] < 0) {
+            multiplier = 1;
+        } else {
+            multiplier = -1;
+        }
+
+
+        double angle = multiplier * translationalAngle;
+        double angleRotation = angle + imuAngle;
+        angleRotation = Math.toDegrees(angleRotation);
+        double trueTxOffset = (txOffset < 3) ? 2 * txOffset : txOffset ;
+
+        return (int) (Kt * (angleRotation - trueTxOffset));
+    }
+
+    public int updatePositionOfTurret(double imuAngle, double x, double y) {
+
+        currentVector.set(0,0,selectedTeamPose[0]-x);
+        currentVector.set(1,0,selectedTeamPose[1]-y);
+
+
+
+        double translationalAngle = Math.acos(initialVector.dot(currentVector) / (initialVector.normF() * currentVector.normF()));
+        if (x - initialRobotPose[0] < 0) {
+            multiplier = 1;
+        } else {
+            multiplier = -1;
+        }
+
+
+        double angle = multiplier * translationalAngle;
+        double angleRotation = angle + imuAngle;
+        angleRotation = Math.toDegrees(angleRotation);
+
+
+        return (int) (Kt * angleRotation);
+    }
+
+    public double distanceToGoal () {
+        return 2.54 * currentVector.normF();
     }
 
 

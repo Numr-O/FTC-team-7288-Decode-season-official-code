@@ -1,10 +1,14 @@
 package org.firstinspires.ftc.teamcode.Teleop_Opmodes.Testing_Teleops;
 
+
+import com.arcrobotics.ftclib.util.InterpLUT;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.IndexingClass;
@@ -29,10 +33,12 @@ public class LimeLightDistanceTesting extends OpMode {
     double SERVO_TRAVEL_POS_RIGHT = 0.5;
     double SERVO_TRAVEL_POS_LEFT = 0.5;
 
-
+    double shooterSpeed = 0;
     double velocity = 0;
+    boolean grabValue = true;
 
     public void init() {
+
         robotHardware.init(hardwareMap);
         indexingClass.init(hardwareMap);
         shootingAndIntaking.init(hardwareMap);
@@ -40,19 +46,39 @@ public class LimeLightDistanceTesting extends OpMode {
 
         robotHardware.limelight.setPollRateHz(100);
         robotHardware.limelight.pipelineSwitch(0);
+
+
     }
 
     public void start() {robotHardware.limelight.start();}
 
     public void loop() {
 
+        LLResult llResult = robotHardware.limelight.getLatestResult();
+
         boolean rightTriggerPressed = gamepad1.right_trigger > 0.5;
         boolean leftTriggerPressed = gamepad1.left_trigger > 0.5;
 
+
         if (rightTriggerPressed) {
-            shootingAndIntaking.launchArtifacts();
+            if (grabValue) {
+                shooterSpeed = distanceToSpeed(shooterDistanceVelocity.distanceToTarget(llResult.getTa()));
+                grabValue = false;
+            }
+
+            robotHardware.shooterMotorBottom.setVelocity(shooterSpeed);
+            robotHardware.shooterMotorTop.setVelocity(-shooterSpeed);
+
+            shootingAndIntaking.launchArtifactTwo(robotHardware.shooterMotorBottom.getVelocity() < shooterSpeed + 20 && robotHardware.shooterMotorBottom.getVelocity() > shooterSpeed - 20, indexingClass.doesPosBHaveArtifact());
             indexingClass.emptyIndexerArray();
+            indexingClass.indexerStates = IndexingClass.IndexerStates.INDEX_TO_A;
+
         } else {
+            grabValue = true;
+
+            robotHardware.shooterMotorBottom.setVelocity(0);
+            robotHardware.shooterMotorTop.setVelocity(0);
+
             indexingClass.indexArtifacts();
         }
 
@@ -71,25 +97,16 @@ public class LimeLightDistanceTesting extends OpMode {
             robotHardware.intakeMotor.setPower(0);
         }
 
-        if (gamepad1.aWasReleased() && velocity < 1000) {
-            velocity += 5;
+        if (gamepad1.aWasReleased() && velocity < 2000) {
+            velocity += 20;
         } else if (gamepad1.bWasReleased() && velocity > 0) {
-            velocity -= 5;
+            velocity -= 20;
         }
 
-        robotHardware.shooterMotorBottom.setVelocity(velocity, AngleUnit.DEGREES);
-        robotHardware.shooterMotorTop.setVelocity(-velocity, AngleUnit.DEGREES);
 
 
-        LLResult llResult = robotHardware.limelight.getLatestResult();
-        List<LLResultTypes.FiducialResult> fiducials = llResult.getFiducialResults();
-        for(LLResultTypes.FiducialResult fiducial : fiducials) {
-            if (fiducial.getFiducialId() == 24) {
-                telemetry.addData("Distance POSE: ", fiducial.getCameraPoseTargetSpace().getPosition().z);
-            }
-        }
-
-        telemetry.addData("VELOCITY: ", velocity);
+        telemetry.addData("Set VELOCITY: ", velocity);
+        telemetry.addData("Current VELOCITY: ", robotHardware.shooterMotorBottom.getVelocity());
         telemetry.addData("DISTANCE: ", shooterDistanceVelocity.distanceToTarget(llResult.getTa()));
         telemetry.addData("Distance OTOS X: ", robotHardware.sparkFunOTOS.getPosition().x);
         telemetry.addData("Distance OTOS Y: ", robotHardware.sparkFunOTOS.getPosition().y);
@@ -97,5 +114,9 @@ public class LimeLightDistanceTesting extends OpMode {
 
 
     }
+
+   public double distanceToSpeed(double distance) {
+        return 1.67279 * distance + 889.73139;
+   }
 
 }
