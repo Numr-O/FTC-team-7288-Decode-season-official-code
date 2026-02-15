@@ -19,7 +19,15 @@ public class LoadingTeleOP extends OpMode {
 
     public void loop() {
         indexingClass.indexArtifacts();
+        robotHardware.ledLight.setPosition(0.5);
+
         telemetry.addData("Distance: ",robotHardware.distanceSensor.getDistance(DistanceUnit.MM));
+        telemetry.addData("Distance A: ",robotHardware.colorPosA.getDistance(DistanceUnit.MM));
+
+        telemetry.addData("Distance B: ",robotHardware.colorPosB.getDistance(DistanceUnit.MM));
+        telemetry.addData("Distance C: ",robotHardware.colorPosC.getDistance(DistanceUnit.MM));
+        telemetry.addData("Light Detected: ", robotHardware.colorPosA.getLightDetected());
+
     }
 
 

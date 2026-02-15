@@ -1,13 +1,11 @@
-package org.firstinspires.ftc.teamcode.Auto_Opmodes.Testing_Auto;
+package org.firstinspires.ftc.teamcode.Auto_Opmodes.Testing_Auto_UNUSED;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.OLD_CLASSES.IndexerShootingAndIntake;
 import org.firstinspires.ftc.teamcode.Used_Classes.Both_Teleop_And_Auto_Classes.RobotHardware;
 
-@Autonomous
 public class AutoBack extends OpMode {
 
     RobotHardware robothwde = new RobotHardware();

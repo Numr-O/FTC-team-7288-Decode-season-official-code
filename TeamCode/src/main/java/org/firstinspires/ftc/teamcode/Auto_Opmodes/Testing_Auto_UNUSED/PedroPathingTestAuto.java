@@ -1,15 +1,11 @@
-package org.firstinspires.ftc.teamcode.Auto_Opmodes.Testing_Auto;
+package org.firstinspires.ftc.teamcode.Auto_Opmodes.Testing_Auto_UNUSED;
 
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
-import com.pedropathing.paths.PathConstraints;
 import com.pedropathing.util.Timer;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 
@@ -19,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Used_Classes.Teleop_Only_Classes.TeleopSho
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
-@Autonomous
+
 public class PedroPathingTestAuto extends OpMode {
     RobotHardware robotHardware = new RobotHardware();
     IndexingClass indexingClass = new IndexingClass();

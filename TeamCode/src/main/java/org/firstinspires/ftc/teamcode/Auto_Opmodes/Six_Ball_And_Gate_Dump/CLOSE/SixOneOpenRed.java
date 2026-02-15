@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Auto_Opmodes.Six_Ball.CLOSE;
+package org.firstinspires.ftc.teamcode.Auto_Opmodes.Six_Ball_And_Gate_Dump.CLOSE;
 
 
 import com.pedropathing.follower.Follower;
@@ -19,8 +19,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.io.File;
 
-
-public class RedCloseAutoSixBall extends OpMode {
+public class SixOneOpenRed extends OpMode {
     File file = AppUtil.getInstance().getSettingsFile("endPose.txt");
     RobotHardware robotHardware = new RobotHardware();
     IndexingClass indexingClass = new IndexingClass();
@@ -47,6 +46,7 @@ public class RedCloseAutoSixBall extends OpMode {
     private final Pose shootPose = new Pose(91.106,91.106,Math.toRadians(45));
     private final Pose pickupPoseOnePre = new Pose(96.28,83.766,0);
     private final Pose pickupPoseOnePost = new Pose(116.535,83.766,0);
+    private final Pose dumpPose = new Pose(127.618,76.91,0);
     private final Pose shootPoseTwo = new Pose(91.106,91.106,Math.toRadians(45));
     private final Pose moveOffPose = new Pose(103.19,80.09,Math.toRadians(60));
 
@@ -54,7 +54,7 @@ public class RedCloseAutoSixBall extends OpMode {
 
 
 
-    private PathChain startToShoot, shootToPickupPre, pickupPreToPickupPost, pickupPostToShoot, moveOffPath;
+    private PathChain startToShoot, shootToPickupPre, pickupPreToPickupPost, dumpBalls ,dumpToShoot, moveOffPath;
 
     public void buildPaths() {
 
@@ -71,9 +71,13 @@ public class RedCloseAutoSixBall extends OpMode {
                 .addPath(new BezierLine(pickupPoseOnePre, pickupPoseOnePost))
                 .setLinearHeadingInterpolation(pickupPoseOnePre.getHeading(), pickupPoseOnePost.getHeading())
                 .build();
-        pickupPostToShoot = follower.pathBuilder()
-                .addPath(new BezierLine(pickupPoseOnePost, shootPoseTwo))
-                .setLinearHeadingInterpolation(pickupPoseOnePost.getHeading(), shootPoseTwo.getHeading())
+        dumpBalls = follower.pathBuilder()
+                .addPath(new BezierLine(pickupPoseOnePost, dumpPose))
+                .setLinearHeadingInterpolation(pickupPoseOnePost.getHeading(), dumpPose.getHeading())
+                .build();
+        dumpToShoot = follower.pathBuilder()
+                .addPath(new BezierLine(dumpPose, shootPoseTwo))
+                .setLinearHeadingInterpolation(dumpPose.getHeading(), shootPoseTwo.getHeading())
                 .build();
         moveOffPath = follower.pathBuilder()
                 .addPath(new BezierLine(shootPoseTwo, moveOffPose))
@@ -97,7 +101,7 @@ public class RedCloseAutoSixBall extends OpMode {
                     launchArtifacts();
 
                     pathTimer.resetTimer();
-                    while (pathTimer.getElapsedTimeSeconds() < 1);
+                    while (pathTimer.getElapsedTimeSeconds() < 1.5);
                     follower.followPath(shootToPickupPre);
 
                     robotHardware.intakeServoLeft.setPosition(SERVO_INTAKE_POS_LEFT);
@@ -122,14 +126,11 @@ public class RedCloseAutoSixBall extends OpMode {
             case 3:
                 if (!follower.isBusy()) {
 
-                    robotHardware.intakeServoLeft.setPosition(SERVO_TRAVEL_POS_LEFT);
-                    robotHardware.intakeServoRight.setPosition(SERVO_TRAVEL_POS_RIGHT);
-
                     robotHardware.intakeMotor.setPower(0);
 
-                    follower.followPath(pickupPostToShoot);
+                    follower.followPath(dumpBalls);
 
-                    robotHardware.intakeMotor.setPower(-1);
+
 
                     pathState = 4;
 
@@ -138,16 +139,32 @@ public class RedCloseAutoSixBall extends OpMode {
                 break;
             case 4:
                 if (!follower.isBusy()) {
+                    robotHardware.intakeServoLeft.setPosition(SERVO_TRAVEL_POS_LEFT);
+                    robotHardware.intakeServoRight.setPosition(SERVO_TRAVEL_POS_RIGHT);
+
+                    pathTimer.resetTimer();
+                    while(pathTimer.getElapsedTimeSeconds() < 1);
+
+                    robotHardware.intakeMotor.setPower(-1);
+
+                    follower.followPath(dumpToShoot);
+                    pathState = 5;
+
+                    zero = false;
+                }
+                break;
+            case 5:
+                if (!follower.isBusy()) {
                     launchArtifacts();
 
                     pathTimer.resetTimer();
                     while (pathTimer.getElapsedTimeSeconds() < 1);
 
 
-                    pathState = 5;
+                    pathState = 6;
                 }
                 break;
-            case 5:
+            case 6:
                 if(!follower.isBusy()) {
                     follower.followPath(moveOffPath);
 
@@ -171,7 +188,16 @@ public class RedCloseAutoSixBall extends OpMode {
         buildPaths();
         follower.setStartingPose(startPose);
 
+    }
+
+    public void init_loop() {
+        robotHardware.ledLight.setPosition(0.278);
+        telemetry.addData("Selected Team: ", "RED");
         telemetry.addData("Init: ", "Complete");
+        telemetry.addLine();
+        telemetry.addLine();
+        telemetry.addLine();
+        telemetry.addLine();
     }
 
     public void start() {

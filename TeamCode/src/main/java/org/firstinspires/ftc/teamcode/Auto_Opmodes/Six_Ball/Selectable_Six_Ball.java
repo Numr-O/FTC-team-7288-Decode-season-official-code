@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Auto_Opmodes.Six_Ball.FAR.RedFarAutoSixBal
 
 
 @Configurable
-@Autonomous(name = "Six Ball: ", group = "Six Ball")
+@Autonomous(name = "6 Ball - No Unload", group = "Six Ball")
 public class Selectable_Six_Ball extends SelectableOpMode {
 
    public Selectable_Six_Ball() {

@@ -23,7 +23,7 @@ public class TeleopShootingAndIntaking extends IndexingClass{
 
     //------------------------Constants---------------------------------------
 
-    double INDEXER_SERVO_POS_A_EXTRA = 0.97;
+    double INDEXER_SERVO_POS_A_EXTRA = 1;
 
     double SERVO_TRANSFER_POS_RIGHT = 0.61;
     double SERVO_TRANSFER_POS_LEFT = 0.42;

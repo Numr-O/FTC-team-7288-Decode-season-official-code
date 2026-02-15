@@ -57,6 +57,7 @@ public class Red_Team_Main extends OpMode {
 
     Double[] initialRobotPose = new Double[2];
     Double initialHeading;
+    Double robotStartingTicks;
 
 
 
@@ -102,6 +103,7 @@ public class Red_Team_Main extends OpMode {
         robotHardware.limelight.start();
         robotHardware.turretMotor.setTargetPosition(0);
         robotHardware.turretMotor.setPower(0.5);
+
     }
 
 
@@ -204,12 +206,16 @@ public class Red_Team_Main extends OpMode {
 
             shootingAndIntaking.launchArtifactTwo(robotHardware.shooterMotorBottom.getVelocity() < shooterSpeed + 20 && robotHardware.shooterMotorBottom.getVelocity() > shooterSpeed - 20, indexingClass.doesPosBHaveArtifact());
             indexingClass.emptyIndexerArray();
-            indexingClass.indexerStates = IndexingClass.IndexerStates.INDEX_TO_A;
         } else {
             grabValue = true;
 
+            if (indexingClass.indexerStates == IndexingClass.IndexerStates.INDEXER_FULL) {
+                robotHardware.ledLight.setPosition(0.5);
+            } else {
+                robotHardware.ledLight.setPosition(0.280);
+            }
+
             indexingClass.indexArtifacts();
-            indexingClass.indexerCapacityStatus();
             setShooterSpeedZero();
         }
 

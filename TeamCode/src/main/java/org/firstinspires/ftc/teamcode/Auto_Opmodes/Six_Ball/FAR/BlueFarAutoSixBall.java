@@ -31,9 +31,11 @@ public class BlueFarAutoSixBall extends OpMode {
     Follower follower;
     Timer pathTimer;
     Timer timer;
+    LLResult llResult;
     private int pathState;
     double pickupSpeed = 0.32 ;
     boolean startIndexing = true;
+    int loops = 0;
 
     Double[] blueGoalPose = {16.0,131.0};
     Double[] redGoalPose = {128.0,131.0};
@@ -51,17 +53,17 @@ public class BlueFarAutoSixBall extends OpMode {
     double SERVO_TRANSFER_POS_LEFT = 0.4;
 
 
-    private final Pose startPose = new Pose(94.99,7.98,Math.toRadians(90));
-    private final Pose shootPose = new Pose(84.19,18.13,Math.toRadians(63));
-    private final Pose pickupPoseOnePre = new Pose(92.83,35.62,0);
-    private final Pose pickupPoseOnePost = new Pose(120.53,40,0);
-    private final Pose moveOffPose = new Pose(89.07,33.15, Math.toRadians(63));
+    private final Pose startPose = new Pose(53.7,8,Math.toRadians(180));
+    private final Pose shootPose = new Pose(50,8,Math.toRadians(180));
+    private final Pose pickupPoseOne = new Pose(8,8,Math.toRadians(180));
+    private final Pose shakePose = new Pose(8,12,Math.toRadians(160));
+    private final Pose moveOffPose = new Pose(52.4,24.5, Math.toRadians(115));
 
 
 
 
 
-    private PathChain startToShoot, shootToPickupPre, pickupPreToPickupPost, pickupPostToShoot, moveOffPath;
+    private PathChain startToShoot, shootToPickup, shootArtifacts, shakeFront ,shakeBack, moveOffPath;
 
     public void buildPaths() {
 
@@ -70,88 +72,108 @@ public class BlueFarAutoSixBall extends OpMode {
                 .setLinearHeadingInterpolation(startPose.getHeading(), shootPose.getHeading())
                 .build();
 
-        shootToPickupPre = follower.pathBuilder()
-                .addPath(new BezierLine(shootPose, pickupPoseOnePre))
-                .setLinearHeadingInterpolation(shootPose.getHeading(), pickupPoseOnePre.getHeading())
+        shootToPickup = follower.pathBuilder()
+                .addPath(new BezierLine(shootPose, pickupPoseOne))
+                .setLinearHeadingInterpolation(shootPose.getHeading(), pickupPoseOne.getHeading())
                 .build();
-        pickupPreToPickupPost = follower.pathBuilder()
-                .addPath(new BezierLine(pickupPoseOnePre, pickupPoseOnePost))
-                .setLinearHeadingInterpolation(pickupPoseOnePre.getHeading(), pickupPoseOnePost.getHeading())
+        shootArtifacts = follower.pathBuilder()
+                .addPath(new BezierLine(pickupPoseOne, shootPose))
+                .setLinearHeadingInterpolation(pickupPoseOne.getHeading(), shootPose.getHeading())
                 .build();
-        pickupPostToShoot = follower.pathBuilder()
-                .addPath(new BezierLine(pickupPoseOnePost, shootPose))
-                .setLinearHeadingInterpolation(pickupPoseOnePost.getHeading(), shootPose.getHeading())
+        shakeBack = follower.pathBuilder()
+                .addPath(new BezierLine(shakePose, pickupPoseOne))
+                .setLinearHeadingInterpolation(shakePose.getHeading(), pickupPoseOne.getHeading())
                 .build();
+        shakeFront = follower.pathBuilder()
+                .addPath(new BezierLine(pickupPoseOne, shakePose))
+                .setLinearHeadingInterpolation(pickupPoseOne.getHeading(), shakePose.getHeading())
+                .build();
+
         moveOffPath = follower.pathBuilder()
-                .addPath(new BezierLine(shootPose, moveOffPose))
-                .setLinearHeadingInterpolation(shootPose.getHeading(), moveOffPose.getHeading())
+                .addPath(new BezierLine(startPose, moveOffPose))
+                .setLinearHeadingInterpolation(startPose.getHeading(), moveOffPose.getHeading())
                 .build();
     }
 
     public void autonomousPathUpdate() {
         switch (pathState) {
-            case 0:
+            case 1:
+
                 robotHardware.intakeServoRight.setPosition(SERVO_TRAVEL_POS_RIGHT);
                 robotHardware.intakeServoLeft.setPosition(SERVO_TRAVEL_POS_LEFT);
 
-                follower.followPath(startToShoot, 0.7, true);
-                pathState = 1;
+                pathState = 2;
+
+
 
 
                 break;
-            case 1:
+            case 2:
                 pathTimer.resetTimer();
 
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() < 2.5) {
+                if (robotHardware.shooterMotorBottom.getVelocity() == 1420) {
+
+
 
                     launchArtifacts();
 
                     pathTimer.resetTimer();
-                    while (pathTimer.getElapsedTimeSeconds() < 1);
-                    follower.followPath(shootToPickupPre);
+                    while (pathTimer.getElapsedTimeSeconds() < 1.5);
+                    follower.followPath(shootToPickup);
 
                     robotHardware.intakeServoLeft.setPosition(SERVO_INTAKE_POS_LEFT);
                     robotHardware.intakeServoRight.setPosition(SERVO_INTAKE_POS_RIGHT);
                     robotHardware.intakeMotor.setPower(1);
 
 
-                    pathState = 2;
-                }
-                break;
-            case 2:
-                if (!follower.isBusy()) {
-
-                    follower.followPath(pickupPreToPickupPost, pickupSpeed, true);
-
-
-
                     pathState = 3;
                 }
                 break;
-
             case 3:
                 if (!follower.isBusy()) {
 
-                    robotHardware.intakeMotor.setPower(0);
-
-                    follower.followPath(pickupPostToShoot);
+                    for (int i = 0; i < 3; i++) {
+                        indexingClass.indexArtifacts();
+                        pulse();
+                    }
                     pathState = 4;
-
-
                 }
                 break;
             case 4:
                 if (!follower.isBusy()) {
-                    launchArtifacts();
+
+                    robotHardware.intakeMotor.setPower(1);
+
+                    follower.followPath(shootArtifacts, 0.6, true);
+                    pathState = 5;
+
+                    pathTimer.resetTimer();
+                }
+                break;
+            case 5:
+
+                if (!follower.isBusy()) {
+                    robotHardware.intakeMotor.setPower(-1);
 
                     pathTimer.resetTimer();
                     while (pathTimer.getElapsedTimeSeconds() < 1);
 
+                    launchArtifacts();
 
-                    pathState = 5;
+                    pathTimer.resetTimer();
+                    while (pathTimer.getElapsedTimeSeconds() < 1.5);
+
+
+                    if (loops == 1) {
+                        pathState = 6;
+                    } else {
+                        loops++;
+                        pathState = 1;
+                    }
+
                 }
                 break;
-            case 5:
+            case 6:
                 if(!follower.isBusy()) {
                     follower.followPath(moveOffPath);
 
@@ -188,30 +210,38 @@ public class BlueFarAutoSixBall extends OpMode {
     }
 
     public void start() {
-        pathState = 0;
+        pathState = 1;
         robotHardware.limelight.start();
     }
 
     public void loop() {
-        LLResult llResult = robotHardware.limelight.getLatestResult();
+         llResult = robotHardware.limelight.getLatestResult();
 
-        robotHardware.turretMotor.setTargetPosition((int)llResult.getTx());
-        robotHardware.turretMotor.setPower(0.5);
+        double offset = llResult.getTx() * 2.57;
+        int newTargetLL = robotHardware.turretMotor.getCurrentPosition() - (int) offset;
 
-        if (pathState == 2 || pathState == 3) {
+
+
+        if (pathState == 3 || pathState == 4 || pathState == 10) {
             indexingClass.indexArtifacts();
         }
 
         if (!zero) {
             robotHardware.shooterMotorTop.setVelocity(-1420);
             robotHardware.shooterMotorBottom.setVelocity(1420);
+
+            robotHardware.turretMotor.setTargetPosition((llResult.isValid()) ? newTargetLL : 170);
+            robotHardware.turretMotor.setPower(1);
+
         } else {
             robotHardware.shooterMotorTop.setVelocity(0);
             robotHardware.shooterMotorBottom.setVelocity(0);
-            robotHardware.intakeMotor.setPower(0);
+
+            robotHardware.turretMotor.setTargetPosition(0);
+            robotHardware.turretMotor.setPower(1);
         }
 
-
+       telemetry.addData("State: ",pathState);
 
         follower.update();
         autonomousPathUpdate();
@@ -232,6 +262,21 @@ public class BlueFarAutoSixBall extends OpMode {
 
         robotHardware.indexerServo.setPosition(INDEXER_SERVO_POS_A_EXTRA);
         indexingClass.emptyIndexerArray();
+    }
+
+    public void pulse() {
+        robotHardware.intakeMotor.setPower(-1);
+        timer.resetTimer();
+        while (timer.getElapsedTimeSeconds() < 0.15) {
+            indexingClass.indexArtifacts();
+        }
+        robotHardware.intakeMotor.setPower(1);
+
+        timer.resetTimer();
+        while (timer.getElapsedTimeSeconds() < 0.7) {
+            indexingClass.indexArtifacts();
+        }
+
     }
 
 }

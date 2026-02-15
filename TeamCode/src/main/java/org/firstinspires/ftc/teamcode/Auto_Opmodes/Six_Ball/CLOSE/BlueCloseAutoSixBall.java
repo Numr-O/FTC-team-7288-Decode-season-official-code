@@ -44,12 +44,23 @@ public class BlueCloseAutoSixBall extends OpMode {
     double SERVO_TRANSFER_POS_LEFT = 0.4;
 
 
-    private final Pose startPose = new Pose(123.058,121.979,Math.toRadians(45));
-    private final Pose shootPose = new Pose(91.106,91.106,Math.toRadians(45));
-    private final Pose pickupPoseOnePre = new Pose(96.28,83.766,0);
-    private final Pose pickupPoseOnePost = new Pose(116.535,83.766,0);
-    private final Pose shootPoseTwo = new Pose(91.106,91.106,Math.toRadians(45));
-    private final Pose moveOffPose = new Pose(103.19,80.09,Math.toRadians(60));
+    private final Pose startPose = new Pose(22.07,121.15,Math.toRadians(135));
+    private final Pose shootPose = new Pose(47.70,95.106,Math.toRadians(135));
+    private final Pose pickupPoseOnePre = new Pose(46.10,85.76,Math.toRadians(180));
+    private final Pose pickupPoseOnePost = new Pose(28,85.76,Math.toRadians(180));
+    private final Pose pickupPoseOneCtrl = new Pose(31.2,73.11);
+    private final Pose dumpPose = new Pose(18.09,74.91,Math.toRadians(180));
+
+    private final Pose shootPoseTwo = new Pose(49.04,85 ,Math.toRadians(140));
+    private final Pose pickupPoseTwoPre = new Pose(49,64.89,Math.toRadians(180));
+    private final Pose pickupPoseTwoPost = new Pose(26,62.18,Math.toRadians(180));
+    private final Pose dumpPoseTwo = new Pose(20,70,Math.toRadians(180));
+    private final Pose pickupPoseTwoCtrl = new Pose(40,72);
+
+
+    private final Pose shootPoseThree = new Pose(49,85,Math.toRadians(145));
+
+    private final Pose moveOffPose = new Pose(40.98,80.09,Math.toRadians(115));
 
 
 
@@ -98,7 +109,7 @@ public class BlueCloseAutoSixBall extends OpMode {
                     launchArtifacts();
 
                     pathTimer.resetTimer();
-                    while (pathTimer.getElapsedTimeSeconds() < 1);
+                    while (pathTimer.getElapsedTimeSeconds() < 1.5);
                     follower.followPath(shootToPickupPre);
 
                     robotHardware.intakeServoLeft.setPosition(SERVO_INTAKE_POS_LEFT);
@@ -136,7 +147,7 @@ public class BlueCloseAutoSixBall extends OpMode {
                     launchArtifacts();
 
                     pathTimer.resetTimer();
-                    while (pathTimer.getElapsedTimeSeconds() < 1);
+                    while (pathTimer.getElapsedTimeSeconds() < 1.5);
 
 
                     pathState = 5;
@@ -195,7 +206,7 @@ public class BlueCloseAutoSixBall extends OpMode {
     }
 
     public void stop() {
-        String otosEndPose = follower.poseTracker.getPose().getX() + " " + follower.poseTracker.getPose().getY() + " " + follower.poseTracker.getPose().getHeading();
+        String otosEndPose = follower.poseTracker.getPose().getX() + " " + follower.poseTracker.getPose().getY() + " " + follower.poseTracker.getPose().getHeading() + " " + robotHardware.turretMotor.getCurrentPosition();
         ReadWriteFile.writeFile(file, otosEndPose);
     }
 

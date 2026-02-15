@@ -12,6 +12,7 @@ public class IndexingClass {
     //--------- Variables --------
 
     public boolean[] indexerPositions = {false, false, false};
+    public boolean green;
 
 
 
@@ -42,15 +43,15 @@ public class IndexingClass {
     // ---------- Functions ------------
 
     public boolean doesPosAHaveArtifact() {
-        return robotHardware.colorPosA.getDistance(DistanceUnit.MM) < 50 && !indexerPositions[0];
+        return robotHardware.colorPosA.getDistance(DistanceUnit.MM) < 59 && robotHardware.colorPosA.getLightDetected() > 0.1;
     }
 
     public boolean doesPosBHaveArtifact() {
-        return robotHardware.colorPosB.getDistance(DistanceUnit.MM) < 50 && !indexerPositions[1];
+        return robotHardware.colorPosB.getDistance(DistanceUnit.MM) < 59 && robotHardware.colorPosB.getLightDetected() > 0.1;
     }
 
     public boolean doesPosCHaveArtifact() {
-        return robotHardware.colorPosC.getDistance(DistanceUnit.MM) < 50 && !indexerPositions[2];
+        return robotHardware.colorPosC.getDistance(DistanceUnit.MM) < 59 && robotHardware.colorPosC.getLightDetected() > 0.1;
     }
 
     public boolean isBallInIndexer() {
@@ -76,6 +77,7 @@ public class IndexingClass {
                 }
                 break;
             case INDEX_TO_A:
+                green = false;
                 robotHardware.indexerServo.setPosition(INDEXER_SERVO_POS_A);
                 if (doesPosAHaveArtifact()) {
                     indexerPositions[0] = true;
@@ -106,17 +108,13 @@ public class IndexingClass {
 //                    timer.reset();
 //                    while(timer.milliseconds()<50);
                     indexerStates = IndexerStates.INDEXER_FULL;
+                    green = true;
                 } else {
                     indexerStates = IndexerStates.INDEX_TO_C;
                 }
                 break;
 
             case INDEXER_FULL:
-
-
-                if (!indexerPositions[0] || !indexerPositions[1] || !indexerPositions[2]) {
-                    indexerStates = IndexerStates.INTERMEDIATE_STATE;
-                }
                 break;
 
         }
@@ -126,15 +124,17 @@ public class IndexingClass {
         indexerPositions[0] = false;
         indexerPositions[1] = false;
         indexerPositions[2] = false;
+        indexerStates = IndexingClass.IndexerStates.INDEX_TO_A;
     }
 
     public void indexerCapacityStatus() {
         if (indexerStates == IndexerStates.INDEXER_FULL) {
             robotHardware.ledLight.setPosition(0.5);
         } else {
-            robotHardware.ledLight.setPosition(0.28);
+            robotHardware.ledLight.setPosition(0.278);
         }
     }
+
 
 
 }

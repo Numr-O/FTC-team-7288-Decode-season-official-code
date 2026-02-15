@@ -1,7 +1,8 @@
-package org.firstinspires.ftc.teamcode.Auto_Opmodes.Nine_Ball_One_Gate_Dump;
+package org.firstinspires.ftc.teamcode.Auto_Opmodes.Nine_Ball_One_Gate_Open.CLOSE;
 
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -19,8 +20,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.io.File;
 
-@Autonomous
-public class RedCloseAutoNineBallOneGateBall extends OpMode {
+public class NineOneUnloadBlue extends OpMode {
     File file = AppUtil.getInstance().getSettingsFile("endPose.txt");
     RobotHardware robotHardware = new RobotHardware();
     IndexingClass indexingClass = new IndexingClass();
@@ -43,19 +43,23 @@ public class RedCloseAutoNineBallOneGateBall extends OpMode {
     double SERVO_TRANSFER_POS_LEFT = 0.4;
 
 
-    private final Pose startPose = new Pose(123.058,121.979,Math.toRadians(45));
-    private final Pose shootPose = new Pose(91.106,91.106,Math.toRadians(45));
-    private final Pose pickupPoseOnePre = new Pose(96.28,83.766,0);
-    private final Pose pickupPoseOnePost = new Pose(116.535,83.766,0);
-    private final Pose dumpPose = new Pose(127.618,76.91,0);
+    private final Pose startPose = new Pose(22.07,121.15,Math.toRadians(135));
+    private final Pose shootPose = new Pose(47.70,95.106,Math.toRadians(135));
+    private final Pose pickupPoseOnePre = new Pose(46.10,85.76,Math.toRadians(180));
+    private final Pose pickupPoseOnePost = new Pose(28,85.76,Math.toRadians(180));
+    private final Pose pickupPoseOneCtrl = new Pose(31.2,73.11);
+    private final Pose dumpPose = new Pose(18.09,74.91,Math.toRadians(180));
 
-    private final Pose pickupPoseTwoPre = new Pose(100.17,58.89,0);
-    private final Pose pickupPoseTwoPost = new Pose(124.18,59.18,0);
-    private final Pose shootPoseThree = new Pose(91.106,91.106,Math.toRadians(45));
+    private final Pose shootPoseTwo = new Pose(49.04,85 ,Math.toRadians(140));
+    private final Pose pickupPoseTwoPre = new Pose(49,64.89,Math.toRadians(180));
+    private final Pose pickupPoseTwoPost = new Pose(26,62.18,Math.toRadians(180));
+    private final Pose dumpPoseTwo = new Pose(20,70,Math.toRadians(180));
+    private final Pose pickupPoseTwoCtrl = new Pose(40,72);
 
-    private final Pose shootPoseTwo = new Pose(91.106,91.106,Math.toRadians(45));
-    private final Pose moveOffPose = new Pose(103.19,80.09,Math.toRadians(60));
 
+    private final Pose shootPoseThree = new Pose(49,85,Math.toRadians(145));
+
+    private final Pose moveOffPose = new Pose(40.98,80.09,Math.toRadians(115));
 
 
 
@@ -78,7 +82,7 @@ public class RedCloseAutoNineBallOneGateBall extends OpMode {
                 .setLinearHeadingInterpolation(pickupPoseOnePre.getHeading(), pickupPoseOnePost.getHeading())
                 .build();
         dumpBalls = follower.pathBuilder()
-                .addPath(new BezierLine(pickupPoseOnePost, dumpPose))
+                .addPath(new BezierCurve(pickupPoseOnePost, pickupPoseOneCtrl ,dumpPose))
                 .setLinearHeadingInterpolation(pickupPoseOnePost.getHeading(), dumpPose.getHeading())
                 .build();
         dumpToShootTwo = follower.pathBuilder()
@@ -121,7 +125,7 @@ public class RedCloseAutoNineBallOneGateBall extends OpMode {
                     launchArtifacts();
 
                     pathTimer.resetTimer();
-                    while (pathTimer.getElapsedTimeSeconds() < 1);
+                    while (pathTimer.getElapsedTimeSeconds() < 1.5);
                     follower.followPath(shootToPickupPre);
 
                     robotHardware.intakeServoLeft.setPosition(SERVO_INTAKE_POS_LEFT);
@@ -155,7 +159,7 @@ public class RedCloseAutoNineBallOneGateBall extends OpMode {
                     pathState = 4;
 
                     zero = false;
-                }
+                 }
                 break;
             case 4:
                 if (!follower.isBusy()) {
@@ -194,6 +198,10 @@ public class RedCloseAutoNineBallOneGateBall extends OpMode {
             case 7:
                 if (!follower.isBusy()) {
 
+                    robotHardware.intakeMotor.setPower(-1);
+                    robotHardware.intakeServoLeft.setPosition(SERVO_TRAVEL_POS_LEFT);
+                    robotHardware.intakeServoRight.setPosition(SERVO_TRAVEL_POS_RIGHT);
+
                     follower.followPath(pickupPostTwoToShootThree);
 
                     pathState = 8;
@@ -228,6 +236,17 @@ public class RedCloseAutoNineBallOneGateBall extends OpMode {
         follower.setStartingPose(startPose);
 
         telemetry.addData("Init: ", "Complete");
+        telemetry.addLine();
+        telemetry.addLine();
+    }
+
+    public void init_loop() {
+        robotHardware.ledLight.setPosition(0.611);
+        telemetry.addData("Selected Team: ", "BLUE");
+        telemetry.addLine();
+        telemetry.addLine();
+        telemetry.addLine();
+        telemetry.addLine();
     }
 
     public void start() {
